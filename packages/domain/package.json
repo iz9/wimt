@@ -6,7 +6,10 @@
   "exports": {},
   "scripts": {
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "eslint --max-warnings 0",
+    "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

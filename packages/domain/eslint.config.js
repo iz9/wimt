@@ -1,4 +1,4 @@
-import { config as baseConfig } from "@wimt/eslint-config/base";
+import { config } from "@wimt/eslint-config/base";
 
 /** @type {import("eslint").Linter.Config[]} */
-export default baseConfig;
+export default config;

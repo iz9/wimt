@@ -1,0 +1,3 @@
+node_modules/.bin/lint-staged
+turbo run test
+turbo run check-types
