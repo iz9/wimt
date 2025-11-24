@@ -1,4 +1,4 @@
-import { AggregateRoot } from "../aggregate/AggregateRoot";
+import { AggregateRoot } from "./AggregateRoot";
 import { makeId, ULID } from "../valueObjects/ulid";
 import { DateTime } from "../valueObjects/DateTime";
 import { CategoryName } from "../valueObjects/CategoryName";

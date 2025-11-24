@@ -1,5 +1,5 @@
 import { CategoryName } from "../valueObjects/CategoryName";
-import { Category } from "./Category";
+import { Category } from "../aggregate/Category";
 import { Color } from "../valueObjects/Color";
 import { Icon } from "../valueObjects/Icon";
 import { DateTime } from "../valueObjects/DateTime";
