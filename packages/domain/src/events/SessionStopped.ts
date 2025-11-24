@@ -1,5 +1,5 @@
 import { AbstractDomainEvent } from "./AbstractDomainEvent";
-import { DateTime } from "../shared/TimeProvider";
+import { DateTime } from "../valueObjects/DateTime";
 
 export class SessionStopped extends AbstractDomainEvent {
   readonly type = "SessionStopped";
