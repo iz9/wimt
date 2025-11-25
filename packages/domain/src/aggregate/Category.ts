@@ -31,6 +31,16 @@ export class Category extends AggregateRoot {
   setColor(color: Color): void {
     this.color = color;
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      createdAt: this.createdAt,
+      color: this.color,
+      icon: this.icon,
+    };
+  }
 }
 
 type CategoryProps = {
