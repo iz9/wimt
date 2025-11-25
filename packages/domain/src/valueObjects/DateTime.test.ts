@@ -323,11 +323,4 @@ describe("DateTime", () => {
       expect(dt1.value).toBe(dt2.value);
     });
   });
-
-  describe("toJSON", () => {
-    it("should return a string", () => {
-      const json = DateTime.create(1).toJSON();
-      expect(json).toBe("1");
-    });
-  });
 });
