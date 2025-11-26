@@ -1,5 +1,5 @@
 import { DateTime } from "../valueObjects/DateTime";
 
-export interface TimeProvider {
+export interface TimeService {
   now(): DateTime;
 }

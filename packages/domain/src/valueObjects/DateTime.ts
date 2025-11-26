@@ -14,15 +14,102 @@ export class DateTime {
     return new DateTime(timestamp);
   }
 
-  equals(other: DateTime): boolean {
+  get value(): number {
+    return this.timestamp;
+  }
+
+  isBefore(other: DateTime): boolean {
+    return this.timestamp < other.timestamp;
+  }
+
+  isAfter(other: DateTime): boolean {
+    return this.timestamp > other.timestamp;
+  }
+
+  isSameOrBefore(other: DateTime): boolean {
+    return this.timestamp <= other.timestamp;
+  }
+
+  isSameOrAfter(other: DateTime): boolean {
+    return this.timestamp >= other.timestamp;
+  }
+  isBetween(other: DateTime, other2: DateTime): boolean {
+    return (
+      (this.isAfter(other) && this.isBefore(other2)) ||
+      (this.isBefore(other) && this.isAfter(other2))
+    );
+  }
+
+  isSame(other: DateTime): boolean {
     return this.timestamp === other.timestamp;
   }
 
-  get value(): number {
-    return this.timestamp;
+  diff(other: DateTime, unit: Unit = "ms"): Diff {
+    const diffMs = this.timestamp - other.timestamp;
+    // const value = diffMs / DateTime.unitToMs(unit);
+
+    return {
+      value: diffMs,
+      unit,
+    };
+  }
+
+  isSameOrBetween(other: DateTime, other2: DateTime): boolean {
+    return (
+      (this.isSameOrAfter(other) && this.isSameOrBefore(other2)) ||
+      (this.isSameOrBefore(other) && this.isSameOrAfter(other2))
+    );
+  }
+
+  add(amount: number, unit: Unit = "ms"): DateTime {
+    return new DateTime(this.timestamp + amount * DateTime.unitToMs(unit));
+  }
+
+  subtract(amount: number, unit: Unit = "ms"): DateTime {
+    return new DateTime(this.timestamp - amount * DateTime.unitToMs(unit));
+  }
+
+  clone(): DateTime {
+    return new DateTime(this.timestamp);
+  }
+
+  static unitToMs(unit: Unit): number {
+    switch (unit) {
+      case "ms":
+        return 1;
+      case "second":
+        return 1000;
+      case "minute":
+        return 60 * 1000;
+      case "hour":
+        return 60 * 60 * 1000;
+      case "day":
+        return 24 * 60 * 60 * 1000;
+      case "week":
+        return 7 * 24 * 60 * 60 * 1000;
+      case "month":
+        return 30 * 24 * 60 * 60 * 1000;
+      case "year":
+        return 365 * 24 * 60 * 60 * 1000;
+    }
   }
 
   toJSON() {
     return String(this.timestamp);
   }
 }
+
+export type Unit =
+  | "ms"
+  | "second"
+  | "minute"
+  | "hour"
+  | "day"
+  | "week"
+  | "month"
+  | "year";
+
+export type Diff = {
+  value: number;
+  unit: Unit;
+};

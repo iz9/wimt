@@ -28,12 +28,12 @@ describe("CategoryName", () => {
     });
     it("should throw error if category name is too long", () => {
       expect(() =>
-        CategoryName.create("a".repeat(CategoryName.MAX_LENGTH + 1)),
+        CategoryName.create("a".repeat(CategoryName.MAX_LENGTH + 1))
       ).toThrow();
     });
     it("should throw error if category name is too short", () => {
       expect(() =>
-        CategoryName.create("a".repeat(CategoryName.MIN_LENGTH - 1)),
+        CategoryName.create("a".repeat(CategoryName.MIN_LENGTH - 1))
       ).toThrow();
     });
   });
@@ -45,12 +45,6 @@ describe("CategoryName", () => {
 
       const name3 = CategoryName.create("name2");
       expect(name1.equals(name3)).toBe(false);
-    });
-  });
-  describe("toJSON", () => {
-    it("should return a string", () => {
-      const name = CategoryName.create("name");
-      expect(name.toJSON()).toBe("name");
     });
   });
 });

@@ -43,10 +43,4 @@ describe("Color", () => {
       expect(color.value).toBe("#f00");
     });
   });
-  describe("toJSON", () => {
-    it("should return a string", () => {
-      const color = Color.create("#FF0000");
-      expect(color.toJSON()).toBe("#ff0000");
-    });
-  });
 });

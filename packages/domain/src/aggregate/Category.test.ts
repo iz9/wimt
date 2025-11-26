@@ -3,6 +3,8 @@ import { Category } from "./Category";
 import { Color } from "../valueObjects/Color";
 import { Icon } from "../valueObjects/Icon";
 import { DateTime } from "../valueObjects/DateTime";
+import { CategoryCreated } from "../events/CategoryCreated";
+import { CategoryEdited } from "../events/CategoryEdited";
 
 describe("Category", () => {
   const now = DateTime.create(Date.now());
@@ -17,6 +19,18 @@ describe("Category", () => {
       expect(category.id).toBeDefined();
       expect(typeof category.id).toBe("string");
       expect(category.createdAt).toBe(now);
+    });
+
+    it("should emit CategoryCreated event", () => {
+      const category = new Category({
+        name: CategoryName.create("Work"),
+        createdAt: now,
+      });
+      const events = category.pullDomainEvents();
+      const targetEvent = events.find(
+        (event) => event instanceof CategoryCreated,
+      );
+      expect(targetEvent).toBeDefined();
     });
   });
 
@@ -45,6 +59,19 @@ describe("Category", () => {
       category.setName(CategoryName.create("New Category"));
       expect(category.name.value).toBe("New Category");
     });
+
+    it("should emit CategoryEdited event", () => {
+      const category = new Category({
+        name: CategoryName.create("Category"),
+        createdAt: now,
+      });
+      category.setName(CategoryName.create("New Category"));
+      const events = category.pullDomainEvents();
+      const targetEvent = events.find(
+        (event) => event instanceof CategoryEdited,
+      );
+      expect(targetEvent).toBeDefined();
+    });
   });
 
   describe("set color", () => {
@@ -56,6 +83,19 @@ describe("Category", () => {
       category.setColor(Color.create("#000000"));
       expect(category.color?.value).toBe("#000000");
     });
+
+    it("should emit CategoryEdited event", () => {
+      const category = new Category({
+        name: CategoryName.create("Category"),
+        createdAt: now,
+      });
+      category.setColor(Color.create("#000000"));
+      const events = category.pullDomainEvents();
+      const targetEvent = events.find(
+        (event) => event instanceof CategoryEdited,
+      );
+      expect(targetEvent).toBeDefined();
+    });
   });
 
   describe("set icon", () => {
@@ -66,6 +106,19 @@ describe("Category", () => {
       });
       category.setIcon(Icon.create("icon"));
       expect(category.icon?.value).toBe("icon");
+    });
+
+    it("should emit CategoryEdited event", () => {
+      const category = new Category({
+        name: CategoryName.create("Category"),
+        createdAt: now,
+      });
+      category.setIcon(Icon.create("icon"));
+      const events = category.pullDomainEvents();
+      const targetEvent = events.find(
+        (event) => event instanceof CategoryEdited,
+      );
+      expect(targetEvent).toBeDefined();
     });
   });
 });
