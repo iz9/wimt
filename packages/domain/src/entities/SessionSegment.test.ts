@@ -1,5 +1,6 @@
 import { DateTime } from "../valueObjects/DateTime";
 import { SessionSegment } from "./SessionSegment";
+import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
 describe("SessionSegment", () => {
   let timestamp: number;
   let segment: SessionSegment;
@@ -65,7 +66,7 @@ describe("SessionSegment", () => {
 
       expect(() => {
         segment.stop(segment.startedAt.add(2000));
-      }).toThrow();
+      }).toThrow(SegmentAlreadyStoppedError);
     });
 
     it("should throw when stop is called with a timestamp before startedAt", () => {
@@ -87,26 +88,6 @@ describe("SessionSegment", () => {
     it("should be stopped when segment is stopped", () => {
       segment.stop(segment.startedAt.add(1000));
       expect(segment.state).toBe("stopped");
-    });
-  });
-
-  describe("getDuration", () => {
-    describe("stopped", () => {
-      it("should return duration of the stopped segment corectrly", () => {
-        segment.stop(segment.startedAt.add(1000));
-
-        expect(segment.getDurationMs()).toBe(1000);
-      });
-    });
-
-    describe("active", () => {
-      it("should return currentTime - startedAt on active segment when current time is provided", () => {
-        expect(segment.getDurationMs(segment.startedAt.add(2000))).toBe(2000);
-      });
-
-      it("should throw when call getDuration without currentTime on active segment", () => {
-        expect(() => segment.getDurationMs()).toThrow();
-      });
     });
   });
 
@@ -179,15 +160,26 @@ describe("SessionSegment", () => {
     });
   });
 
+  describe("duration", () => {
+    it("should return duration of the stopped segment corectrly", () => {
+      segment.stop(segment.startedAt.add(1000));
+
+      expect(segment.durationMs).toBe(1000);
+    });
+    it("should return duration of the active segment corectrly", () => {
+      expect(segment.durationMs).toBeNull();
+    });
+  });
+
   describe("edge cases", () => {
     it("should handle very short durations (< 1ms) correctly", () => {
-      segment.stop(segment.startedAt.add(0.5)); // Less than 1ms
-      expect(segment.getDurationMs()).toBeLessThan(1);
+      segment.stop(segment.startedAt.add(0.5));
+      expect(segment.durationMs).toBe(0.5);
     });
 
     it("should handle very long durations (days/weeks) correctly", () => {
       segment.stop(segment.startedAt.add(1, "week"));
-      expect(segment.getDurationMs()).toBe(7 * 24 * 60 * 60 * 1000);
+      expect(segment.durationMs).toBe(7 * 24 * 60 * 60 * 1000);
     });
 
     it("should throw error when startedAt and stoppedAt are same timestamp", () => {

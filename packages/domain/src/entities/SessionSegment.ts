@@ -2,6 +2,7 @@ import { invariant } from "es-toolkit";
 import { DateTime } from "../valueObjects/DateTime";
 import { ULID, makeId } from "../valueObjects/ulid";
 import { ValidationDomainError } from "../errors/ValidationDomainError";
+import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
 
 export class SessionSegment {
   public readonly id: ULID;
@@ -23,12 +24,14 @@ export class SessionSegment {
     return this._state;
   }
 
-  get totalDurationMs() {
+  get durationMs() {
     if (this.state === "active") {
       return null;
     }
 
-    return;
+    invariant(this.stoppedAt, "stoppedAt is required when segment is stopped");
+
+    return this.stoppedAt.value - this.startedAt.value;
   }
 
   get startedAt() {
@@ -40,10 +43,7 @@ export class SessionSegment {
   }
 
   stop(stopedAt: DateTime) {
-    invariant(
-      this.state === "active",
-      new ValidationDomainError("segment is already stopped"),
-    );
+    invariant(this.state === "active", new SegmentAlreadyStoppedError());
     invariant(
       stopedAt.value > this.startedAt.value,
       new ValidationDomainError("stop time must be after start time"),
@@ -68,13 +68,12 @@ export class SessionSegment {
     this._stoppedAt = newStopTime;
   }
 
-  getDurationMs(currentTime?: DateTime): number {
-    if (this.state === "stopped") {
-      return this.stoppedAt!.value - this.startedAt.value;
-    }
-
-    invariant(currentTime, "currentTime is required when segment is active");
-    return currentTime.value - this.startedAt.value;
+  toJSON() {
+    return {
+      id: this.id,
+      startedAt: this.startedAt,
+      stoppedAt: this.stoppedAt,
+    };
   }
 }
 
