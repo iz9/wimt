@@ -1,6 +1,6 @@
-import { Session } from "../aggregate/Session";
+import { Session } from "../aggregate";
 import { Specification } from "../specifications";
-import { ULID } from "../valueObjects/ulid";
+import { ULID } from "../valueObjects";
 
 export interface ISessionRepository {
   // spec is optional. If not provided, returns all sessions
@@ -11,3 +11,5 @@ export interface ISessionRepository {
   findById(id: ULID): Promise<Session | null>;
   count(): Promise<number>;
 }
+
+export const SessionRepositorySymbol = Symbol.for("SessionRepository");

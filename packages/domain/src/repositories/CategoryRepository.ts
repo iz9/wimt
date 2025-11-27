@@ -1,6 +1,6 @@
-import { Category } from "../aggregate/Category";
+import { Category } from "../aggregate";
 import { Specification } from "../specifications";
-import { ULID } from "../valueObjects/ulid";
+import { ULID } from "../valueObjects";
 
 export interface ICategoryRepository {
   // spec is optional. If not provided, returns all categories
@@ -11,3 +11,5 @@ export interface ICategoryRepository {
   findById(id: ULID): Promise<Category | null>;
   count(): Promise<number>;
 }
+
+export const CategoryRepositorySymbol = Symbol.for("CategoryRepository");
