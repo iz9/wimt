@@ -1,3 +1,5 @@
+import { ULID } from "ulid";
+import { EntityBase } from "../entities/Entity.base";
 import { AbstractDomainEvent } from "../events/AbstractDomainEvent";
 
 /**
@@ -25,7 +27,10 @@ import { AbstractDomainEvent } from "../events/AbstractDomainEvent";
  * }
  * ```
  */
-export abstract class AggregateRoot {
+export class AggregateRoot extends EntityBase {
+  constructor(id?: ULID) {
+    super(id);
+  }
   private _domainEvents: AbstractDomainEvent[] = [];
 
   protected addEvent(event: AbstractDomainEvent): void {

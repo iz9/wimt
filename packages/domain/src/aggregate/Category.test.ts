@@ -34,6 +34,27 @@ describe("Category", () => {
     });
   });
 
+  describe("property immutability", () => {
+    it("should have readonly createdAt", () => {
+      const category = new Category({
+        name: CategoryName.create("Work"),
+        createdAt: now,
+      });
+
+      const originalCreatedAt = category.createdAt;
+
+      // Verify property descriptor shows readonly
+      const descriptor = Object.getOwnPropertyDescriptor(category, "createdAt");
+      expect(descriptor?.writable).toBe(false);
+
+      // Verify value doesn't change
+      expect(
+        () => ((category as any).createdAt = DateTime.create(0)),
+      ).toThrow();
+      expect(category.createdAt).toBe(originalCreatedAt);
+    });
+  });
+
   describe("reconstruction", () => {
     it("should reconstruct category with existing id and createdAt", () => {
       const existingId = "01JD..." as any;
@@ -47,6 +68,16 @@ describe("Category", () => {
 
       expect(category.id).toBe(existingId);
       expect(category.createdAt).toBe(existingDate);
+    });
+    it("should not emit event when reconstructing from persistence", () => {
+      const category = new Category({
+        name: CategoryName.create("Work"),
+        id: "existing-id" as any,
+        createdAt: now,
+      });
+
+      const events = category.pullDomainEvents();
+      expect(events.length).toBe(0); // No events on reconstruction
     });
   });
 

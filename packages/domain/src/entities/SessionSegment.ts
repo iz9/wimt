@@ -1,20 +1,16 @@
 import { invariant } from "es-toolkit";
 import { DateTime } from "../valueObjects/DateTime";
-import { ULID, makeId } from "../valueObjects/ulid";
+import { ULID } from "../valueObjects/ulid";
 import { ValidationDomainError } from "../errors/ValidationDomainError";
 import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
+import { EntityBase } from "./Entity.base";
 
-export class SessionSegment {
-  public readonly id: ULID;
+export class SessionSegment extends EntityBase {
   private _startedAt: DateTime;
   private _stoppedAt: DateTime | null;
   private _state: "active" | "stopped";
   constructor(props: SessionSegmentProps) {
-    this.id = props.id ?? makeId();
-    invariant(
-      props.startedAt instanceof DateTime,
-      new ValidationDomainError("startedAt must be a DateTime"),
-    );
+    super(props.id);
     this._startedAt = props.startedAt;
     this._stoppedAt = props.stoppedAt ?? null;
     this._state = props.stoppedAt ? "stopped" : "active";
