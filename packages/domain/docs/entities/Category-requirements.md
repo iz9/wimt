@@ -24,38 +24,38 @@ Category is an Aggregate Root because:
 
 ## Properties
 
-| Property    | Type       | Description                         | Mutability |
-| ----------- | ---------- | ----------------------------------- | ---------- |
-| `id`        | `ULID`     | Unique identifier for the category  | Immutable  |
-| `name`      | `string`   | Display name of the category        | Mutable    |
-| `createdAt` | `DateTime` | Timestamp when category was created | Immutable  |
+| Property    | Type            | Description                           | Mutability |
+| ----------- | --------------- | ------------------------------------- | ---------- |
+| `id`        | `ULID`          | Unique identifier for the category    | Immutable  |
+| `name`      | `CategoryName`  | Display name of the category          | Mutable    |
+| `createdAt` | `DateTime`      | Timestamp when category was created   | Immutable  |
+| `color`     | `Color \| null` | Optional color for visual distinction | Mutable    |
+| `icon`      | `Icon \| null`  | Optional icon for visual recognition  | Mutable    |
 
 ---
 
 ## Business Rules & Invariants
 
-### 1. Name is Required
+### 1. Name is Required and Valid
 
-- **Rule:** Category must always have a non-empty name
-- **Validation:** Name cannot be `null`, `undefined`, or empty string after trimming
-- **Enforcement:** Constructor validation
-- **Error:** Throw invariant error if violated
+- **Rule:** Category must always have a valid `CategoryName` value object
+- **Validation:** Delegated to `CategoryName` value object
+- **Enforcement:** CategoryName.create() validates:
+  - Name cannot be `null` or `undefined`
+  - Name cannot be empty string
+  - Name must be between 1 and 50 characters after trimming
+  - Name must be a string type
+- **Error:** `CategoryName` throws validation error if rules violated
+- **Reference:** See `CategoryName` value object documentation for detailed validation rules
 
-### 2. Name has Minimum Length
-
-- **Rule:** Category name must have at least one character after trimming whitespace
-- **Validation:** `trim(name).length > 0`
-- **Enforcement:** Constructor validation
-- **Error:** Throw invariant error if violated
-
-### 3. Unique Identity
+### 2. Unique Identity
 
 - **Rule:** Each category has a unique ULID identifier
 - **Validation:** ID is generated once at creation time
 - **Enforcement:** Constructor sets `readonly id`
 - **Note:** No two categories should have the same ID (enforced at repository level)
 
-### 4. Creation Timestamp
+### 3. Creation Timestamp
 
 - **Rule:** Category records when it was created
 - **Validation:** `createdAt` is set to current time if not provided
@@ -70,17 +70,19 @@ Category is an Aggregate Root because:
 
 **Input:**
 
-- `name: string` (required)
+- `name: CategoryName` (required - validated value object)
 - `id?: ULID` (optional, for reconstruction from persistence)
 - `createdAt?: DateTime` (optional, for reconstruction from persistence)
+- `color?: Color` (optional)
+- `icon?: Icon` (optional)
 
 **Process:**
 
-1. Validate name invariants
+1. Accept `CategoryName` value object (validation already done)
 2. Generate ULID if not provided
 3. Set createdAt to current time if not provided
-4. Create Category instance
-5. Emit `CategoryCreated` event
+4. Create Category instance with provided properties
+5. Emit `CategoryCreated` event (only if `id` not provided - new creation)
 
 **Output:**
 
@@ -167,10 +169,12 @@ Category is an Aggregate Root because:
 
 ## Validation Rules Summary
 
-| Rule           | Check                   | Error Message      |
-| -------------- | ----------------------- | ------------------ |
-| Name Not Null  | `isNotNil(name)`        | "name is required" |
-| Name Not Empty | `trim(name).length > 0` | "name is required" |
+| Rule               | Check                          | Error Message                      | Enforced By  |
+| ------------------ | ------------------------------ | ---------------------------------- | ------------ |
+| Name is Valid      | `name instanceof CategoryName` | Delegated to CategoryName          | CategoryName |
+| Name Not Null      | Delegated to CategoryName      | "Name cannot be null or undefined" | CategoryName |
+| Name Not Empty     | Delegated to CategoryName      | "Name cannot be empty"             | CategoryName |
+| Name Length (1-50) | Delegated to CategoryName      | "Name must be 1-50 characters"     | CategoryName |
 
 ---
 
@@ -237,45 +241,63 @@ Category is an Aggregate Root because:
 
 ### Unit Tests Required
 
-1. **Creation with valid name**
-   - Creates category with provided name
-   - Generates ULID automatically
-   - Sets createdAt to current time
+**Category Aggregate Tests** (`Category.test.ts`):
 
-2. **Creation with all parameters**
-   - Accepts optional id and createdAt
+1. **Creation with valid CategoryName**
+   - Creates category with CategoryName value object
+   - Generates ULID automatically
+   - Sets createdAt to provided time
+   - Accepts optional color and icon
+
+2. **Reconstruction with all parameters**
+   - Accepts optional id and createdAt for persistence reconstruction
+   - Does not emit event when reconstructing (id provided)
    - Uses provided values instead of generating
 
-3. **Name validation - null**
-   - Throws error when name is null
+3. **Event emission - CategoryCreated**
+   - CategoryCreated event is emitted on new creation
+   - Event contains categoryId, occurredAt
+   - Event NOT emitted when reconstructing from persistence
 
-4. **Name validation - undefined**
-   - Throws error when name is undefined
+4. **Event emission - CategoryEdited**
+   - CategoryEdited event emitted when name changes
+   - CategoryEdited event emitted when color changes
+   - CategoryEdited event emitted when icon changes
 
-5. **Name validation - empty string**
-   - Throws error when name is ""
+5. **Property immutability**
+   - `id` is readonly and cannot be changed after creation
+   - `createdAt` is readonly and cannot be changed after creation
 
-6. **Name validation - whitespace only**
-   - Throws error when name is " "
+6. **Property mutability**
+   - `name` can be changed via `setName()`
+   - `color` can be changed via `setColor()`
+   - `icon` can be changed via `setIcon()`
 
-7. **Event emission**
-   - CategoryCreated event is emitted with correct data
-   - Event contains categoryId, categoryName, occurredAt
+**CategoryName Value Object Tests** (`CategoryName.test.ts`):
 
-8. **Property immutability**
-   - `id` cannot be changed after creation
-   - `createdAt` cannot be changed after creation
-
-9. **Name mutability**
-   - `name` can be changed (for future rename feature)
+> ℹ️ **Note:** Name validation tests belong in `CategoryName.test.ts`, not `Category.test.ts`
+>
+> The CategoryName value object is responsible for validating:
+>
+> - Name is not null/undefined
+> - Name is not empty string
+> - Name is not whitespace-only
+> - Name length is between 1-50 characters
+> - Name is a valid string type
+>
+> See `CategoryName` documentation for detailed validation test requirements.
 
 ---
 
 ## Related Documents
 
 - [EventStorming Session - 2025-11-23](../eventStorming/eventStorming-19-11-25.md)
+- [CategoryName Value Object](../valueObjects/CategoryName-requirements.md) - Name validation rules
+- [Color Value Object](../valueObjects/Color-requirements.md) - Color validation rules
+- [Icon Value Object](../valueObjects/Icon-requirements.md) - Icon validation rules
 - [Aggregate Root Pattern](../theory/aggregate-root-pattern.md)
 - [Domain Events](../theory/domain-events.md)
+- [Value Objects Pattern](../theory/value-objects.md)
 
 ---
 
