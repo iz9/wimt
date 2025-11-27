@@ -8,7 +8,6 @@ import { SessionStarted } from "../events/SessionStarted";
 import { SessionPaused } from "../events/SessionPaused";
 import { SessionResumed } from "../events/SessionResumed";
 import { SessionStopped } from "../events/SessionStopped";
-import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
 import { NoActiveSegmentError } from "../errors/NoActiveSegmentError";
 import { SegmentTooShort } from "../events/SegmentTooShort";
 import { DomainError } from "../errors/DomainError";
@@ -17,14 +16,12 @@ import { EmptySessionError } from "../errors/EpmtySessionError";
 
 export class Session extends AggregateRoot {
   public categoryId: ULID;
-  public id: ULID;
   private _history: SessionSegment[] = [];
   private _stoppedAt: DateTime | null = null;
   private _activeSegment: SessionSegment | null = null;
   private readonly createdAt: DateTime;
   constructor(props: SessionProps) {
-    super();
-    this.id = props.id ?? makeId();
+    super(props.id);
 
     invariant(
       props.categoryId,
@@ -62,8 +59,6 @@ export class Session extends AggregateRoot {
   }
 
   private start() {
-    this._activeSegment = this.createSegment(this.createdAt);
-    this.addEvent(new SessionStarted(this.id, this.createdAt.clone()));
     this._activeSegment = this.createSegment(this.createdAt);
     this.addEvent(new SessionStarted(this.id, this.createdAt.clone()));
   }

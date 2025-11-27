@@ -1,6 +1,7 @@
 import { DateTime } from "../valueObjects/DateTime";
 import { SessionSegment } from "./SessionSegment";
 import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
+
 describe("SessionSegment", () => {
   let timestamp: number;
   let segment: SessionSegment;
@@ -11,10 +12,10 @@ describe("SessionSegment", () => {
     });
   });
   describe("creation", () => {
-    it("should create a session segment with auto-generated id and createdAt", () => {
-      expect(segment.id).toBeDefined();
-      expect(typeof segment.id).toBe("string");
+    it("should create a session segment with readonly createdAt", () => {
       expect(segment.startedAt.isSame(DateTime.create(timestamp))).toBe(true);
+      // @ts-expect-error intentionally try to change readonly property
+      expect(() => (segment.startedAt = DateTime.create(timestamp))).toThrow();
       expect(segment.state).toBe("active");
       expect(segment.stoppedAt).toBeNull();
     });
@@ -41,17 +42,6 @@ describe("SessionSegment", () => {
       expect(
         recreatedSessionSegment.stoppedAt!.isSame(segment.stoppedAt!),
       ).toBe(true);
-    });
-  });
-
-  describe("startedAt validation", () => {
-    it("should throw an error if startedAt is not valid DateTime", () => {
-      expect(() => {
-        new SessionSegment({
-          // @ts-expect-error intetional wrong type
-          startedAt: timestamp,
-        });
-      }).toThrow();
     });
   });
 

@@ -1,5 +1,5 @@
 import { AggregateRoot } from "./AggregateRoot";
-import { makeId, ULID } from "../valueObjects/ulid";
+import { ULID } from "../valueObjects/ulid";
 import { DateTime } from "../valueObjects/DateTime";
 import { CategoryName } from "../valueObjects/CategoryName";
 import { Color } from "../valueObjects/Color";
@@ -9,16 +9,14 @@ import { CategoryCreated } from "../events/CategoryCreated";
 import { CategoryEdited } from "../events/CategoryEdited";
 
 export class Category extends AggregateRoot {
-  public readonly id: ULID;
   public name: CategoryName;
-  public readonly createdAt: DateTime;
+  public readonly createdAt!: DateTime;
   public color: Color | null;
   public icon: Icon | null;
   constructor(props: CategoryProps) {
-    super();
+    super(props.id);
     this.name = props.name;
-    this.createdAt = props.createdAt;
-    this.id = props.id ?? makeId();
+    this.defineImmutable("createdAt", props.createdAt);
     this.color = props.color ?? null;
     this.icon = props.icon ?? null;
     if (isNil(props.id)) {
