@@ -319,7 +319,7 @@ packages/
 │   └── interfaces/           # Ports (defined by domain)
 │       ├── ICategoryRepository.ts
 │       ├── ISessionRepository.ts
-│       └── TimeProvider.ts
+│       └── TimeService.ts
 │
 ├── application/              # Use cases (inside hexagon)
 │   ├── useCases/
