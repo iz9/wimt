@@ -13,8 +13,14 @@ import { SegmentTooShort } from "../events/SegmentTooShort";
 import { DomainError } from "../errors/DomainError";
 import { TooShortSegmentError } from "../errors/TooShortSegmentError";
 import { EmptySessionError } from "../errors/EpmtySessionError";
+import {
+  ValidSegmentDurationSpec,
+  StoppedSegmentSpec,
+} from "../specifications";
+import { SegmentCollectionValidator } from "../services/SegmentCollectionValidator";
 
 export class Session extends AggregateRoot {
+  private segmentCollectionValidator = new SegmentCollectionValidator();
   public categoryId: ULID;
   private _history: SessionSegment[] = [];
   private _stoppedAt: DateTime | null = null;
@@ -39,17 +45,12 @@ export class Session extends AggregateRoot {
 
     this._activeSegment = props.activeSegment ?? null;
     this._history = props.history ?? [];
-    invariant(
-      this.segmentSortingInvariant(
-        [...this._history, this._activeSegment].filter(isNotNil),
-      ),
-      new ValidationDomainError("segments must be sorted by startedAt"),
+    const segmentValidation = this.segmentCollectionValidator.validate(
+      [...this._history, this._activeSegment].filter(isNotNil),
     );
     invariant(
-      this.segmentOverlapInvariant(
-        [...this._history, this._activeSegment].filter(isNotNil),
-      ),
-      new ValidationDomainError("segments must not overlap"),
+      segmentValidation.isValid,
+      new ValidationDomainError(segmentValidation.errors.join(", ")),
     );
 
     if (isNil(props.id)) {
@@ -85,31 +86,6 @@ export class Session extends AggregateRoot {
 
   get activeSegment(): SessionSegment | null {
     return this._activeSegment;
-  }
-
-  private segmentSortingInvariant(segments: SessionSegment[]): boolean {
-    for (let i = 1; i < segments.length; i++) {
-      const currentStart = segments[i]?.startedAt;
-      const prevStart = segments[i - 1]?.startedAt;
-      if (isNil(currentStart) || isNil(prevStart)) {
-        continue;
-      }
-
-      return currentStart.isAfter(prevStart);
-    }
-    return true;
-  }
-
-  private segmentOverlapInvariant(segments: SessionSegment[]): boolean {
-    for (let i = 0; i < segments.length; i++) {
-      const currentStop = segments[i]?.stoppedAt;
-      const nextStart = segments[i + 1]?.startedAt;
-      if (isNil(currentStop) || isNil(nextStart)) {
-        continue;
-      }
-      return currentStop.isBefore(nextStart);
-    }
-    return true;
   }
 
   stop(stoppedAt: DateTime) {
@@ -176,14 +152,15 @@ export class Session extends AggregateRoot {
     const segment = this.activeSegment;
     invariant(isNotNil(segment), new NoActiveSegmentError());
 
-    const MIN_DURATION_MS = 300;
-    const diff = stoppedAt.diff(segment.startedAt, "ms");
-    const isSegmentTooShort = diff.value > 0 && diff.value < MIN_DURATION_MS;
-    if (isSegmentTooShort) {
+    segment.stop(stoppedAt.clone());
+
+    const isValid = new ValidSegmentDurationSpec().isSatisfiedBy(segment);
+
+    if (!isValid) {
       this.addEvent(new SegmentTooShort(segment.id, stoppedAt));
       throw new TooShortSegmentError();
     }
-    segment.stop(stoppedAt.clone());
+
     this._activeSegment = null;
     this._history.push(segment);
   }
@@ -206,10 +183,10 @@ export class Session extends AggregateRoot {
   getDurationMs() {
     if (this.state !== "stopped") return null;
 
-    return this.history.reduce(
-      (acc, segment) => acc + (segment.durationMs ?? 0),
-      0,
-    );
+    const stoppedSegmentSpec = new StoppedSegmentSpec();
+    return this.history
+      .filter((segment) => stoppedSegmentSpec.isSatisfiedBy(segment))
+      .reduce((acc, segment) => acc + (segment.durationMs ?? 0), 0);
   }
 
   toJSON() {
