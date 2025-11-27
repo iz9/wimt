@@ -3,7 +3,14 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
-  "exports": {},
+  "exports": {
+    "./aggregates": "./src/aggregate/index.ts",
+    "./entities": "./src/entities/index.ts",
+    "./repositories": "./src/repositories/index.ts",
+    "./specifications": "./src/specifications/index.ts",
+    "./shared": "./src/shared/index.ts",
+    "./valueObjects": "./src/valueObjects/index.ts"
+  },
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
@@ -30,10 +37,7 @@
     "typescript-eslint": "^8.46.3"
   },
   "dependencies": {
-    "dayjs": "^1.11.19",
     "es-toolkit": "^1.42.0",
-    "inversify": "^7.10.4",
-    "reflect-metadata": "^0.2.2",
     "ulid": "^3.0.1"
   }
 }
