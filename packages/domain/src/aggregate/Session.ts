@@ -19,7 +19,7 @@ export class Session extends AggregateRoot {
   private _history: SessionSegment[] = [];
   private _stoppedAt: DateTime | null = null;
   private _activeSegment: SessionSegment | null = null;
-  private readonly createdAt: DateTime;
+  public readonly createdAt: DateTime;
   constructor(props: SessionProps) {
     super(props.id);
 
