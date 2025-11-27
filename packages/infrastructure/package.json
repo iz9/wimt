@@ -1,0 +1,44 @@
+{
+  "name": "@wimt/infrastructure",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {},
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "eslint --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@next/eslint-plugin-next": "^15.5.0",
+    "@types/jest": "^30.0.0",
+    "@types/sql.js": "^1.4.9",
+    "@wimt/domain": "workspace:*",
+    "@wimt/eslint-config": "workspace:*",
+    "@wimt/typescript-config": "workspace:*",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-turbo": "^2.6.0",
+    "globals": "^16.5.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.46.3"
+  },
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "3.51.1-build1",
+    "dayjs": "^1.11.19",
+    "drizzle-orm": "^0.44.7",
+    "es-toolkit": "^1.42.0",
+    "expo-sqlite": "^16.0.9",
+    "inversify": "^7.10.4",
+    "reflect-metadata": "^0.2.2",
+    "ulid": "^3.0.1"
+  }
+}
