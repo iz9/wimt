@@ -1,4 +1,5 @@
 import { isNotNil } from "es-toolkit";
+
 import { SessionSegment } from "../../entities/SessionSegment";
 import { CompositeSpecification } from "../Specification";
 
@@ -11,8 +12,6 @@ import { CompositeSpecification } from "../Specification";
  * Use case: Validate segments before adding to history, filter out invalid segments
  */
 export class ValidSegmentDurationSpec extends CompositeSpecification<SessionSegment> {
-  private static readonly MIN_VALID_DURATION_MS = 300;
-
   isSatisfiedBy(segment: SessionSegment): boolean {
     // Segment must be stopped to have a duration
     if (segment.state !== "stopped") {
@@ -20,9 +19,12 @@ export class ValidSegmentDurationSpec extends CompositeSpecification<SessionSegm
     }
 
     const duration = segment.durationMs;
+
     return (
       isNotNil(duration) &&
       duration >= ValidSegmentDurationSpec.MIN_VALID_DURATION_MS
     );
   }
+
+  private static readonly MIN_VALID_DURATION_MS = 300;
 }

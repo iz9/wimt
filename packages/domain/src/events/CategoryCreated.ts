@@ -1,6 +1,7 @@
-import { AbstractDomainEvent } from "./AbstractDomainEvent";
 import { ULID } from "ulid";
+
 import { DateTime } from "../valueObjects/DateTime";
+import { AbstractDomainEvent } from "./AbstractDomainEvent";
 
 export class CategoryCreated extends AbstractDomainEvent {
   readonly type = "CategoryCreated";

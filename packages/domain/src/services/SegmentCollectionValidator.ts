@@ -1,5 +1,11 @@
 import { isNil } from "es-toolkit";
+
 import { SessionSegment } from "../entities/SessionSegment";
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
 
 export class SegmentCollectionValidator {
   /**
@@ -19,6 +25,7 @@ export class SegmentCollectionValidator {
         return false;
       }
     }
+
     return true;
   }
 
@@ -35,6 +42,7 @@ export class SegmentCollectionValidator {
         return true; // They overlap
       }
     }
+
     return false; // No overlap
   }
 
@@ -54,9 +62,4 @@ export class SegmentCollectionValidator {
       errors,
     };
   }
-}
-
-interface ValidationResult {
-  isValid: boolean;
-  errors: string[];
 }

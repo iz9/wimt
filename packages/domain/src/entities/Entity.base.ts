@@ -2,6 +2,7 @@ import { makeId, ULID } from "../valueObjects/ulid";
 
 export class EntityBase {
   readonly id!: ULID;
+
   constructor(id?: ULID) {
     this.defineImmutable("id", id ?? makeId());
   }

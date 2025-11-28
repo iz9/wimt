@@ -1,31 +1,42 @@
-import { AggregateRoot } from "./AggregateRoot";
-import { ULID } from "../valueObjects/ulid";
-import { DateTime } from "../valueObjects/DateTime";
-import { CategoryName } from "../valueObjects/CategoryName";
-import { Color } from "../valueObjects/Color";
-import { Icon } from "../valueObjects/Icon";
 import { isNil } from "es-toolkit";
+
 import { CategoryCreated } from "../events/CategoryCreated";
 import { CategoryEdited } from "../events/CategoryEdited";
+import { CategoryName } from "../valueObjects/CategoryName";
+import { Color } from "../valueObjects/Color";
+import { DateTime } from "../valueObjects/DateTime";
+import { Icon } from "../valueObjects/Icon";
+import { ULID } from "../valueObjects/ulid";
+import { AggregateRoot } from "./AggregateRoot";
+
+type CategoryProps = {
+  id?: ULID;
+  name: CategoryName;
+  createdAt: DateTime;
+  color?: Color;
+  icon?: Icon;
+};
 
 export class Category extends AggregateRoot {
-  public name: CategoryName;
-  public readonly createdAt!: DateTime;
   public color: Color | null;
+  public readonly createdAt!: DateTime;
   public icon: Icon | null;
+  public name: CategoryName;
+
   constructor(props: CategoryProps) {
     super(props.id);
     this.name = props.name;
     this.defineImmutable("createdAt", props.createdAt);
     this.color = props.color ?? null;
     this.icon = props.icon ?? null;
+
     if (isNil(props.id)) {
       this.addEvent(new CategoryCreated(this.id, this.createdAt));
     }
   }
 
-  setName(name: CategoryName): void {
-    this.name = name;
+  setColor(color: Color): void {
+    this.color = color;
     this.addEvent(new CategoryEdited(this.id, this.createdAt));
   }
 
@@ -34,8 +45,8 @@ export class Category extends AggregateRoot {
     this.addEvent(new CategoryEdited(this.id, this.createdAt));
   }
 
-  setColor(color: Color): void {
-    this.color = color;
+  setName(name: CategoryName): void {
+    this.name = name;
     this.addEvent(new CategoryEdited(this.id, this.createdAt));
   }
 
@@ -49,11 +60,3 @@ export class Category extends AggregateRoot {
     };
   }
 }
-
-type CategoryProps = {
-  id?: ULID;
-  name: CategoryName;
-  createdAt: DateTime;
-  color?: Color;
-  icon?: Icon;
-};

@@ -1,5 +1,6 @@
-import { CompositeSpecification } from "../Specification";
 import type { Category } from "../../aggregate/Category";
+
+import { CompositeSpecification } from "../Specification";
 
 /**
  * Specification: Category name matches search term (case-insensitive)
@@ -14,6 +15,7 @@ export class CategoryNameMatchesSpec extends CompositeSpecification<Category> {
   isSatisfiedBy(category: Category): boolean {
     const categoryName = category.name.value.toLowerCase();
     const search = this.searchTerm.toLowerCase();
+
     return categoryName.includes(search);
   }
 }

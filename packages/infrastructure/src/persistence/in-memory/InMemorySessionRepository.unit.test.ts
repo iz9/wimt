@@ -1,25 +1,30 @@
 import "reflect-metadata";
-import { InMemorySessionRepository } from "./InMemorySessionRepository";
+
+import { Container } from "inversify";
+
+import type { ISessionRepository } from "@wimt/domain/repositories";
+import type { ITimeService } from "@wimt/domain/shared";
+
 import { Session } from "@wimt/domain/aggregates";
-import { makeId } from "@wimt/domain/valueObjects";
+import { SessionSegment } from "@wimt/domain/entities";
+import { SessionRepositorySymbol } from "@wimt/domain/repositories";
+import { TimeServiceSymbol } from "@wimt/domain/shared";
 import {
   ActiveSessionSpec,
   StoppedSessionSpec,
   SessionForCategorySpec,
   CompositeSpecification,
 } from "@wimt/domain/specifications";
-import { Container } from "inversify";
-import type { ISessionRepository } from "@wimt/domain/repositories";
-import { SessionRepositorySymbol } from "@wimt/domain/repositories";
-import type { ITimeService } from "@wimt/domain/shared";
-import { TimeServiceSymbol } from "@wimt/domain/shared";
+import { makeId } from "@wimt/domain/valueObjects";
+
 import { TimeService } from "../../time/TimeService";
-import { SessionSegment } from "@wimt/domain/entities";
+import { InMemorySessionRepository } from "./InMemorySessionRepository";
 
 class IdSpec extends CompositeSpecification<Session> {
   constructor(private readonly id: string) {
     super();
   }
+
   isSatisfiedBy(candidate: Session): boolean {
     return candidate.id === this.id;
   }
@@ -49,12 +54,15 @@ describe("InMemorySessionRepository", () => {
     await repository.save(session);
 
     const found = await repository.findById(session.id);
+
     expect(found).toBeDefined();
     expect(found?.id).toBe(session.id);
   });
 
   it("should return null if session not found", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const found = await repository.findById("non-existent" as any);
+
     expect(found).toBeNull();
   });
 
@@ -68,6 +76,7 @@ describe("InMemorySessionRepository", () => {
     await repository.delete(session.id);
 
     const found = await repository.findById(session.id);
+
     expect(found).toBeNull();
   });
 
@@ -85,6 +94,7 @@ describe("InMemorySessionRepository", () => {
     await repository.save(session2);
 
     const count = await repository.count();
+
     expect(count).toBe(2);
   });
 
@@ -102,6 +112,7 @@ describe("InMemorySessionRepository", () => {
     await repository.save(session2);
 
     const all = await repository.findAll();
+
     expect(all.length).toBe(2);
   });
 
@@ -258,6 +269,7 @@ describe("InMemorySessionRepository", () => {
     );
 
     const found = await repository.findManyBySpec(spec);
+
     expect(found.length).toBe(1);
     expect(found[0]?.id).toBe(activeSession1.id);
   });
@@ -287,6 +299,7 @@ describe("InMemorySessionRepository", () => {
     const spec = spec1.or(spec2);
 
     const found = await repository.findManyBySpec(spec);
+
     expect(found.length).toBe(2);
 
     const foundByCategoryId = found.find((session) =>
@@ -308,11 +321,13 @@ describe("InMemorySessionRepository", () => {
 
     // Pause the session
     const pauseTime = time.now().add(60, "second");
+
     session.pause(pauseTime);
 
     await repository.save(session);
 
     const found = await repository.findById(session.id);
+
     expect(found?.state).toBe("paused");
   });
 });

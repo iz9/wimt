@@ -1,6 +1,7 @@
-import { ITimeService } from "@wimt/domain/shared";
-import { injectable } from "inversify";
 import dayjs from "dayjs";
+import { injectable } from "inversify";
+
+import { ITimeService } from "@wimt/domain/shared";
 import { DateTime } from "@wimt/domain/valueObjects";
 
 @injectable()

@@ -1,26 +1,32 @@
-import {
-  SqliteSessionRepository,
-  DbClientSymbol,
-} from "./SqliteSessionRepository";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Container } from "inversify";
+
 import { Session } from "@wimt/domain/aggregates";
-import { DateTime, makeId } from "@wimt/domain/valueObjects";
+import { SessionSegment } from "@wimt/domain/entities";
 import {
   ActiveSessionSpec,
   StoppedSessionSpec,
   SessionForCategorySpec,
 } from "@wimt/domain/specifications";
-import { Container } from "inversify";
-import { SessionSegment } from "@wimt/domain/entities";
+import { DateTime, makeId } from "@wimt/domain/valueObjects";
+
+import {
+  SqliteSessionRepository,
+  DbClientSymbol,
+} from "./SqliteSessionRepository";
 
 // Enhanced mock for sessions with multiple tables
 const createMockDbClient = () => {
   const tables = new Map<any, Map<string, any>>();
+
   let currentTable: any = null;
 
   const getStorage = (table: any): Map<string, any> => {
     if (!tables.has(table)) {
       tables.set(table, new Map());
     }
+
     return tables.get(table)!;
   };
 
@@ -28,11 +34,14 @@ const createMockDbClient = () => {
     select: () => ({
       from: (table: any) => {
         currentTable = table;
+
         const storage = getStorage(table);
+
         return {
           where: (condition: any) => ({
             limit: (n: number) => {
               const all = Array.from(storage.values());
+
               return Promise.resolve(all.slice(0, n));
             },
           }),
@@ -44,22 +53,29 @@ const createMockDbClient = () => {
     }),
     insert: (table: any) => {
       currentTable = table;
+
       const storage = getStorage(table);
+
       return {
         values: (data: any | any[]) => {
           const items = Array.isArray(data) ? data : [data];
+
           items.forEach((item) => storage.set(item.id, item));
+
           return Promise.resolve();
         },
       };
     },
     update: (table: any) => {
       currentTable = table;
+
       const storage = getStorage(table);
+
       return {
         set: (data: any) => ({
           where: (condition: any) => {
             storage.set(data.id, data);
+
             return Promise.resolve();
           },
         }),
@@ -67,11 +83,14 @@ const createMockDbClient = () => {
     },
     delete: (table: any) => {
       currentTable = table;
+
       const storage = getStorage(table);
+
       return {
         where: (condition: any) => {
           // Simple delete - just clear the last item
           storage.clear();
+
           return Promise.resolve();
         },
       };
@@ -104,6 +123,7 @@ describe("SqliteSessionRepository", () => {
       });
 
       await repository.save(session);
+
       const found = await repository.findById(session.id);
 
       expect(found).not.toBeNull();
@@ -130,6 +150,7 @@ describe("SqliteSessionRepository", () => {
       });
 
       await repository.save(session);
+
       const found = await repository.findById(session.id);
 
       expect(found).not.toBeNull();
@@ -147,11 +168,13 @@ describe("SqliteSessionRepository", () => {
 
       // Pause the session
       const pauseTime = DateTime.create(Date.now() + 60000);
+
       session.pause(pauseTime);
 
       await repository.save(session);
 
       const found = await repository.findById(session.id);
+
       expect(found?.state).toBe("paused");
     });
   });
@@ -171,6 +194,7 @@ describe("SqliteSessionRepository", () => {
       await repository.save(session2);
 
       const all = await repository.findAll();
+
       expect(all.length).toBe(2);
     });
   });
@@ -297,6 +321,7 @@ describe("SqliteSessionRepository", () => {
       await repository.delete(session.id);
 
       const found = await repository.findById(session.id);
+
       expect(found).toBeNull();
     });
   });

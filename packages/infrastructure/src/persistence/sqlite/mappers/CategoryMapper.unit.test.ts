@@ -1,8 +1,9 @@
 // CategoryMapper.test.ts
 import { Category } from "@wimt/domain/aggregates";
-import { CategoryMapper } from "./CategoryMapper";
 import { CategoryName, Color, DateTime } from "@wimt/domain/valueObjects";
+
 import { CategoryRow } from "../schema";
+import { CategoryMapper } from "./CategoryMapper";
 
 describe("CategoryMapper", () => {
   const mapper = new CategoryMapper();

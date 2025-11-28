@@ -15,6 +15,7 @@ export class LongSegmentSpec extends CompositeSpecification<SessionSegment> {
 
   isSatisfiedBy(segment: SessionSegment): boolean {
     const duration = segment.durationMs;
+
     return duration !== null && duration >= this.minimumDurationMs;
   }
 }

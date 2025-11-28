@@ -1,11 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Container } from "inversify";
+
+import { Category } from "@wimt/domain/aggregates";
+import { CategoryNameMatchesSpec } from "@wimt/domain/specifications";
+import { CategoryName, Color, Icon, DateTime } from "@wimt/domain/valueObjects";
+
 import {
   SqliteCategoryRepository,
   DbClientSymbol,
 } from "./SqliteCategoryRepository";
-import { Category } from "@wimt/domain/aggregates";
-import { CategoryName, Color, Icon, DateTime } from "@wimt/domain/valueObjects";
-import { CategoryNameMatchesSpec } from "@wimt/domain/specifications";
-import { Container } from "inversify";
 
 // Mock drizzle db client
 const createMockDbClient = () => {
@@ -22,6 +26,7 @@ const createMockDbClient = () => {
               // This is a simplified implementation
               return true;
             });
+
             return Promise.resolve(filtered.slice(0, n));
           },
         }),
@@ -33,6 +38,7 @@ const createMockDbClient = () => {
     insert: (table: any) => ({
       values: (data: any) => {
         storage.set(data.id, data);
+
         return Promise.resolve();
       },
     }),
@@ -40,6 +46,7 @@ const createMockDbClient = () => {
       set: (data: any) => ({
         where: (condition: any) => {
           storage.set(data.id, data);
+
           return Promise.resolve();
         },
       }),
@@ -48,9 +55,11 @@ const createMockDbClient = () => {
       where: (condition: any) => {
         // Extract id from condition - this is a simplified mock
         const entries = Array.from(storage.entries());
+
         if (entries.length > 0) {
           storage.delete(entries[entries.length - 1]![0]);
         }
+
         return Promise.resolve();
       },
     }),
@@ -81,6 +90,7 @@ describe("SqliteCategoryRepository", () => {
       });
 
       await repository.save(category);
+
       const found = await repository.findById(category.id);
 
       expect(found).not.toBeNull();
@@ -102,6 +112,7 @@ describe("SqliteCategoryRepository", () => {
       await repository.save(category);
 
       const found = await repository.findById(category.id);
+
       expect(found?.name.value).toBe("Personal");
     });
   });
@@ -121,6 +132,7 @@ describe("SqliteCategoryRepository", () => {
       await repository.save(cat2);
 
       const all = await repository.findAll();
+
       expect(all.length).toBe(2);
     });
 
@@ -180,6 +192,7 @@ describe("SqliteCategoryRepository", () => {
       await repository.delete(category.id);
 
       const found = await repository.findById(category.id);
+
       expect(found).toBeNull();
     });
   });

@@ -1,6 +1,7 @@
+import type { DateTime } from "../../valueObjects/DateTime";
+
 import { Session } from "../../aggregate/Session";
 import { CompositeSpecification } from "../Specification";
-import type { DateTime } from "../../valueObjects/DateTime";
 
 /**
  * Specification: Session stopped (completed) within a date range

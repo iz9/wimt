@@ -1,6 +1,7 @@
+import type { ULID } from "../../valueObjects/ulid";
+
 import { Session } from "../../aggregate/Session";
 import { CompositeSpecification } from "../Specification";
-import type { ULID } from "../../valueObjects/ulid";
 
 /**
  * Specification: Session belongs to a specific category

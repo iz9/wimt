@@ -1,7 +1,12 @@
 import { invariant, isString } from "es-toolkit";
+
 import { ValidationDomainError } from "../errors/ValidationDomainError";
+
+type HexColor = string;
+
 export class Color {
   private constructor(public readonly value: HexColor) {}
+
   static create(value: HexColor): Color {
     invariant(
       isString(value),
@@ -11,11 +16,13 @@ export class Color {
       this.isValidHexColor(value),
       new ValidationDomainError("Color value must be a valid hex color"),
     );
+
     return new Color(value.toLowerCase());
   }
 
   static isValidHexColor(value: string): boolean {
     const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
     return hexColorRegex.test(value);
   }
 
@@ -27,5 +34,3 @@ export class Color {
     return this.value;
   }
 }
-
-type HexColor = string;

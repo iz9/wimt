@@ -4,6 +4,7 @@ describe("Icon", () => {
   describe("create", () => {
     it("should create an icon", () => {
       const icon = Icon.create("icon");
+
       expect(icon).toBeDefined();
       expect(icon.value).toBe("icon");
       expect(icon instanceof Icon).toBe(true);
@@ -29,9 +30,11 @@ describe("Icon", () => {
     it("should return true if icons are equal", () => {
       const icon1 = Icon.create("icon");
       const icon2 = Icon.create("icon");
+
       expect(icon1.equals(icon2)).toBe(true);
 
       const icon3 = Icon.create("icon2");
+
       expect(icon1.equals(icon3)).toBe(false);
     });
   });

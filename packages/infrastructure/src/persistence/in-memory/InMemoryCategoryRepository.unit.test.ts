@@ -1,22 +1,27 @@
 import "reflect-metadata";
-import { InMemoryCategoryRepository } from "./InMemoryCategoryRepository";
+
+import { Container } from "inversify";
+
+import type { ICategoryRepository } from "@wimt/domain/repositories";
+import type { ITimeService } from "@wimt/domain/shared";
+
 import { Category } from "@wimt/domain/aggregates";
-import { CategoryName } from "@wimt/domain/valueObjects";
+import { CategoryRepositorySymbol } from "@wimt/domain/repositories";
+import { TimeServiceSymbol } from "@wimt/domain/shared";
 import {
   CategoryNameMatchesSpec,
   CompositeSpecification,
 } from "@wimt/domain/specifications";
-import { Container } from "inversify";
-import type { ICategoryRepository } from "@wimt/domain/repositories";
-import { CategoryRepositorySymbol } from "@wimt/domain/repositories";
-import type { ITimeService } from "@wimt/domain/shared";
-import { TimeServiceSymbol } from "@wimt/domain/shared";
+import { CategoryName } from "@wimt/domain/valueObjects";
+
 import { TimeService } from "../../time/TimeService";
+import { InMemoryCategoryRepository } from "./InMemoryCategoryRepository";
 
 class IdSpec extends CompositeSpecification<Category> {
   constructor(private readonly id: string) {
     super();
   }
+
   isSatisfiedBy(candidate: Category): boolean {
     return candidate.id === this.id;
   }
@@ -46,12 +51,15 @@ describe("InMemoryCategoryRepository", () => {
     await repository.save(category);
 
     const found = await repository.findById(category.id);
+
     expect(found).toBeDefined();
     expect(found?.id).toBe(category.id);
   });
 
   it("should return null if category not found", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const found = await repository.findById("non-existent" as any);
+
     expect(found).toBeNull();
   });
 
@@ -65,6 +73,7 @@ describe("InMemoryCategoryRepository", () => {
     await repository.delete(category.id);
 
     const found = await repository.findById(category.id);
+
     expect(found).toBeNull();
   });
 
@@ -82,6 +91,7 @@ describe("InMemoryCategoryRepository", () => {
     await repository.save(category2);
 
     const count = await repository.count();
+
     expect(count).toBe(2);
   });
 
@@ -152,9 +162,12 @@ describe("InMemoryCategoryRepository", () => {
     const spec = spec1.or(spec2);
 
     const found = await repository.findManyBySpec(spec);
+
     expect(found.length).toBe(2);
+
     const foundByName = found.find((category) => spec1.isSatisfiedBy(category));
     const foundById = found.find((category) => spec2.isSatisfiedBy(category));
+
     expect(foundByName?.id).toBe(category1.id);
     expect(foundById?.id).toBe(category2.id);
   });

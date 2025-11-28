@@ -1,17 +1,18 @@
-import { DateTime } from "../valueObjects/DateTime";
-import { Session } from "./Session";
-import { makeId, ULID } from "../valueObjects/ulid";
 import { SessionSegment } from "../entities/SessionSegment";
+import { SegmentTooShort } from "../events/SegmentTooShort";
+import { SessionPaused } from "../events/SessionPaused";
+import { SessionResumed } from "../events/SessionResumed";
 import { SessionStarted } from "../events/SessionStarted";
 import { SessionStopped } from "../events/SessionStopped";
-import { SessionResumed } from "../events/SessionResumed";
-import { SessionPaused } from "../events/SessionPaused";
-import { SegmentTooShort } from "../events/SegmentTooShort";
+import { DateTime } from "../valueObjects/DateTime";
+import { makeId, ULID } from "../valueObjects/ulid";
+import { Session } from "./Session";
 
 describe("Session", () => {
   let createdAt: DateTime;
   let timestamp: number;
   let categoryId: ULID;
+
   beforeEach(() => {
     timestamp = 0;
     createdAt = DateTime.create(timestamp);
@@ -85,11 +86,13 @@ describe("Session", () => {
       });
       const events = session.pullDomainEvents();
       const targetEvent = events.find((e) => e instanceof SessionStarted);
+
       expect(targetEvent).toBeDefined();
     });
 
     it("should create activeSegment and history if not provided (fresh Session)", () => {
       const session = new Session({ categoryId, createdAt });
+
       expect(session.history.length).toBe(0);
       expect(session.activeSegment?.state).toBe("active");
     });
@@ -115,24 +118,30 @@ describe("Session", () => {
   describe("pause", () => {
     it("should pause session", () => {
       const session = Session._validTestInstance();
+
       session.pause(session.activeSegment!.startedAt.add(1000));
       expect(session.state).toBe("paused");
     });
     it("should throw when pause NOT active session", () => {
       const session = Session._validTestInstance();
+
       session.stop(session.activeSegment!.startedAt.add(1000));
       expect(() => session.pause(DateTime.create(2000))).toThrow();
 
       const session2 = Session._validTestInstance();
+
       session2.pause(session2.activeSegment!.startedAt.add(1000));
       expect(() => session2.pause(DateTime.create(1000))).toThrow();
     });
 
     it("should emit SessionPaused event when session is paused", () => {
       const session = Session._validTestInstance();
+
       session.pause(DateTime.create(1000));
+
       const events = session.pullDomainEvents();
       const targetEvent = events.find((e) => e instanceof SessionPaused);
+
       expect(targetEvent).toBeDefined();
     });
     it("should discard segment < 300ms when pausing", () => {
@@ -148,6 +157,7 @@ describe("Session", () => {
       // Should emit SegmentTooShort event
       const events = session.pullDomainEvents();
       const tooShortEvent = events.find((e) => e instanceof SegmentTooShort);
+
       expect(tooShortEvent).toBeDefined();
     });
   });
@@ -156,28 +166,34 @@ describe("Session", () => {
     it("should resume paused session", () => {
       const session = Session._validTestInstance();
       const active = session.activeSegment!;
+
       session.pause(active!.startedAt.add(1000));
       session.resume(active!.startedAt.add(2000));
       expect(session.state).toBe("active");
     });
     it("should throw when session is not paused", () => {
       const session = Session._validTestInstance();
+
       expect(() =>
         session.resume(session.activeSegment!.startedAt.add(1000)),
       ).toThrow();
 
       const session2 = Session._validTestInstance();
       const active2 = session2.activeSegment!;
+
       session2.stop(active2.startedAt.add(1000));
       expect(() => session2.resume(active2.startedAt.add(1000))).toThrow();
     });
 
     it("should emit SessionResumed event when session is resumed", () => {
       const session = Session._validTestInstance();
+
       session.pause(DateTime.create(1000));
       session.resume(DateTime.create(2000));
+
       const events = session.pullDomainEvents();
       const targetEvent = events.find((e) => e instanceof SessionResumed);
+
       expect(targetEvent).toBeDefined();
     });
   });
@@ -185,18 +201,21 @@ describe("Session", () => {
   describe("stop", () => {
     it("should stop session", () => {
       const session = Session._validTestInstance();
+
       session.stop(session.activeSegment!.startedAt.add(1000));
       expect(session.state).toBe("stopped");
     });
     it("should throw when session is already stopped", () => {
       const session = Session._validTestInstance();
       const active = session.activeSegment!;
+
       session.stop(active.startedAt.add(1000));
       expect(() => session.stop(active.startedAt.add(1000))).toThrow();
     });
 
     it("should throw when stop in before last segment startedAt", () => {
       const session = Session._validTestInstance();
+
       expect(() =>
         session.stop(session.activeSegment!.startedAt.subtract(1000)),
       ).toThrow();
@@ -204,6 +223,7 @@ describe("Session", () => {
     it("should stop paused session", () => {
       const session = Session._validTestInstance();
       const active = session.activeSegment!;
+
       session.pause(active.startedAt.add(1000));
       session.stop(active.startedAt.add(2000));
       expect(session.state).toBe("stopped");
@@ -211,10 +231,13 @@ describe("Session", () => {
 
     it("should emit SessionStopped event when session is stopped", () => {
       const session = Session._validTestInstance();
+
       session.pause(DateTime.create(1000));
       session.stop(DateTime.create(2000));
+
       const events = session.pullDomainEvents();
       const targetEvent = events.find((e) => e instanceof SessionStopped);
+
       expect(targetEvent).toBeDefined();
     });
     it("should discard last segment < 300ms when stopping", () => {
@@ -234,6 +257,7 @@ describe("Session", () => {
       const events = session.pullDomainEvents();
       const tooShortEvent = events.find((e) => e instanceof SegmentTooShort);
       const stoppedEvent = events.find((e) => e instanceof SessionStopped);
+
       expect(tooShortEvent).toBeDefined();
       expect(stoppedEvent).toBeDefined();
     });
@@ -269,6 +293,7 @@ describe("Session", () => {
 
     it("should return null when session is not stopped", () => {
       const session = Session._validTestInstance();
+
       expect(session.getDurationMs()).toBeNull();
     });
   });
@@ -279,6 +304,7 @@ describe("Session", () => {
         createdAt,
         categoryId,
       });
+
       session.pause(DateTime.create(1000));
       session.resume(DateTime.create(2000));
       session.pause(DateTime.create(3000));
@@ -292,12 +318,14 @@ describe("Session", () => {
   describe("ajustStartTime", () => {
     it("not implemented yet", () => {
       const session = Session._validTestInstance();
+
       expect(() => session.ajustStartTime(DateTime.create(1000))).toThrow();
     });
   });
 
   describe("ajustStopTime", () => {
     const session = Session._validTestInstance();
+
     expect(() => session.ajustStopTime(DateTime.create(1000))).toThrow();
   });
 });

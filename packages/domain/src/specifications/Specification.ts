@@ -28,18 +28,18 @@ export interface Specification<T> {
  * Abstract base class with composition logic
  */
 export abstract class CompositeSpecification<T> implements Specification<T> {
-  abstract isSatisfiedBy(candidate: T): boolean;
-
   and(other: Specification<T>): Specification<T> {
     return new AndSpecification(this, other);
   }
 
-  or(other: Specification<T>): Specification<T> {
-    return new OrSpecification(this, other);
-  }
+  abstract isSatisfiedBy(candidate: T): boolean;
 
   not(): Specification<T> {
     return new NotSpecification(this);
+  }
+
+  or(other: Specification<T>): Specification<T> {
+    return new OrSpecification(this, other);
   }
 }
 
@@ -62,6 +62,19 @@ class AndSpecification<T> extends CompositeSpecification<T> {
 }
 
 /**
+ * NOT negation of a specification
+ */
+class NotSpecification<T> extends CompositeSpecification<T> {
+  constructor(private readonly spec: Specification<T>) {
+    super();
+  }
+
+  isSatisfiedBy(candidate: T): boolean {
+    return !this.spec.isSatisfiedBy(candidate);
+  }
+}
+
+/**
  * OR combination of two specifications
  */
 class OrSpecification<T> extends CompositeSpecification<T> {
@@ -76,18 +89,5 @@ class OrSpecification<T> extends CompositeSpecification<T> {
     return (
       this.left.isSatisfiedBy(candidate) || this.right.isSatisfiedBy(candidate)
     );
-  }
-}
-
-/**
- * NOT negation of a specification
- */
-class NotSpecification<T> extends CompositeSpecification<T> {
-  constructor(private readonly spec: Specification<T>) {
-    super();
-  }
-
-  isSatisfiedBy(candidate: T): boolean {
-    return !this.spec.isSatisfiedBy(candidate);
   }
 }

@@ -1,10 +1,10 @@
-import { CategoryName } from "../valueObjects/CategoryName";
-import { Category } from "./Category";
-import { Color } from "../valueObjects/Color";
-import { Icon } from "../valueObjects/Icon";
-import { DateTime } from "../valueObjects/DateTime";
 import { CategoryCreated } from "../events/CategoryCreated";
 import { CategoryEdited } from "../events/CategoryEdited";
+import { CategoryName } from "../valueObjects/CategoryName";
+import { Color } from "../valueObjects/Color";
+import { DateTime } from "../valueObjects/DateTime";
+import { Icon } from "../valueObjects/Icon";
+import { Category } from "./Category";
 
 describe("Category", () => {
   const now = DateTime.create(Date.now());
@@ -30,6 +30,7 @@ describe("Category", () => {
       const targetEvent = events.find(
         (event) => event instanceof CategoryCreated,
       );
+
       expect(targetEvent).toBeDefined();
     });
   });
@@ -45,10 +46,12 @@ describe("Category", () => {
 
       // Verify property descriptor shows readonly
       const descriptor = Object.getOwnPropertyDescriptor(category, "createdAt");
+
       expect(descriptor?.writable).toBe(false);
 
       // Verify value doesn't change
       expect(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         () => ((category as any).createdAt = DateTime.create(0)),
       ).toThrow();
       expect(category.createdAt).toBe(originalCreatedAt);
@@ -57,6 +60,7 @@ describe("Category", () => {
 
   describe("reconstruction", () => {
     it("should reconstruct category with existing id and createdAt", () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const existingId = "01JD..." as any;
       const existingDate = DateTime.create(1700000000000);
 
@@ -72,11 +76,13 @@ describe("Category", () => {
     it("should not emit event when reconstructing from persistence", () => {
       const category = new Category({
         name: CategoryName.create("Work"),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         id: "existing-id" as any,
         createdAt: now,
       });
 
       const events = category.pullDomainEvents();
+
       expect(events.length).toBe(0); // No events on reconstruction
     });
   });
@@ -87,6 +93,7 @@ describe("Category", () => {
         name: CategoryName.create("Category"),
         createdAt: now,
       });
+
       category.setName(CategoryName.create("New Category"));
       expect(category.name.value).toBe("New Category");
     });
@@ -96,11 +103,14 @@ describe("Category", () => {
         name: CategoryName.create("Category"),
         createdAt: now,
       });
+
       category.setName(CategoryName.create("New Category"));
+
       const events = category.pullDomainEvents();
       const targetEvent = events.find(
         (event) => event instanceof CategoryEdited,
       );
+
       expect(targetEvent).toBeDefined();
     });
   });
@@ -111,6 +121,7 @@ describe("Category", () => {
         name: CategoryName.create("Category"),
         createdAt: now,
       });
+
       category.setColor(Color.create("#000000"));
       expect(category.color?.value).toBe("#000000");
     });
@@ -120,11 +131,14 @@ describe("Category", () => {
         name: CategoryName.create("Category"),
         createdAt: now,
       });
+
       category.setColor(Color.create("#000000"));
+
       const events = category.pullDomainEvents();
       const targetEvent = events.find(
         (event) => event instanceof CategoryEdited,
       );
+
       expect(targetEvent).toBeDefined();
     });
   });
@@ -135,6 +149,7 @@ describe("Category", () => {
         name: CategoryName.create("Category"),
         createdAt: now,
       });
+
       category.setIcon(Icon.create("icon"));
       expect(category.icon?.value).toBe("icon");
     });
@@ -144,11 +159,14 @@ describe("Category", () => {
         name: CategoryName.create("Category"),
         createdAt: now,
       });
+
       category.setIcon(Icon.create("icon"));
+
       const events = category.pullDomainEvents();
       const targetEvent = events.find(
         (event) => event instanceof CategoryEdited,
       );
+
       expect(targetEvent).toBeDefined();
     });
   });

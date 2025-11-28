@@ -22,8 +22,9 @@ export const sessions = sqliteTable("sessions", {
   activeSegmentId: text("active_segment_id"),
 });
 
-export type SessionRow = typeof sessions.$inferSelect;
 export type NewSessionRow = typeof sessions.$inferInsert;
+
+export type SessionRow = typeof sessions.$inferSelect;
 
 export const sessionSegments = sqliteTable("session_segments", {
   id: text("id").primaryKey(),
@@ -32,5 +33,6 @@ export const sessionSegments = sqliteTable("session_segments", {
   stoppedAt: integer("stopped_at", { mode: "timestamp_ms" }),
 });
 
-export type SessionSegmentRow = typeof sessionSegments.$inferSelect;
 export type NewSessionSegmentRow = typeof sessionSegments.$inferInsert;
+
+export type SessionSegmentRow = typeof sessionSegments.$inferSelect;

@@ -1,6 +1,7 @@
+import type { DateTime } from "../../valueObjects/DateTime";
+
 import { SessionSegment } from "../../entities/SessionSegment";
 import { CompositeSpecification } from "../Specification";
-import type { DateTime } from "../../valueObjects/DateTime";
 
 /**
  * Specification: Segment started within a date range

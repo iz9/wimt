@@ -1,23 +1,27 @@
 import { invariant } from "es-toolkit";
+
+import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
+import { ValidationDomainError } from "../errors/ValidationDomainError";
 import { DateTime } from "../valueObjects/DateTime";
 import { ULID } from "../valueObjects/ulid";
-import { ValidationDomainError } from "../errors/ValidationDomainError";
-import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
 import { EntityBase } from "./Entity.base";
+
+type SessionSegmentProps = {
+  id?: ULID;
+  startedAt: DateTime;
+  stoppedAt?: DateTime | null;
+};
 
 export class SessionSegment extends EntityBase {
   private _startedAt: DateTime;
-  private _stoppedAt: DateTime | null;
   private _state: "active" | "stopped";
+  private _stoppedAt: DateTime | null;
+
   constructor(props: SessionSegmentProps) {
     super(props.id);
     this._startedAt = props.startedAt;
     this._stoppedAt = props.stoppedAt ?? null;
     this._state = props.stoppedAt ? "stopped" : "active";
-  }
-
-  get state() {
-    return this._state;
   }
 
   get durationMs() {
@@ -34,18 +38,12 @@ export class SessionSegment extends EntityBase {
     return this._startedAt;
   }
 
-  get stoppedAt() {
-    return this._stoppedAt;
+  get state() {
+    return this._state;
   }
 
-  stop(stopedAt: DateTime) {
-    invariant(this.state === "active", new SegmentAlreadyStoppedError());
-    invariant(
-      stopedAt.value > this.startedAt.value,
-      new ValidationDomainError("stop time must be after start time"),
-    );
-    this._stoppedAt = stopedAt;
-    this._state = "stopped";
+  get stoppedAt() {
+    return this._stoppedAt;
   }
 
   adjustStartTime(newStartTime: DateTime) {
@@ -64,6 +62,16 @@ export class SessionSegment extends EntityBase {
     this._stoppedAt = newStopTime;
   }
 
+  stop(stopedAt: DateTime) {
+    invariant(this.state === "active", new SegmentAlreadyStoppedError());
+    invariant(
+      stopedAt.value > this.startedAt.value,
+      new ValidationDomainError("stop time must be after start time"),
+    );
+    this._stoppedAt = stopedAt;
+    this._state = "stopped";
+  }
+
   toJSON() {
     return {
       id: this.id,
@@ -72,9 +80,3 @@ export class SessionSegment extends EntityBase {
     };
   }
 }
-
-type SessionSegmentProps = {
-  id?: ULID;
-  startedAt: DateTime;
-  stoppedAt?: DateTime | null;
-};

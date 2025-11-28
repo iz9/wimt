@@ -16,6 +16,7 @@ export class LongSessionSpec extends CompositeSpecification<Session> {
 
   isSatisfiedBy(session: Session): boolean {
     const duration = session.getDurationMs();
+
     return duration !== null && duration >= this.minimumDurationMs;
   }
 }

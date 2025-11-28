@@ -7,6 +7,7 @@ import {
   DateTime,
   type ULID,
 } from "@wimt/domain/valueObjects";
+
 import type { CategoryRow, NewCategoryRow } from "../schema";
 
 export class CategoryMapper {
@@ -24,6 +25,13 @@ export class CategoryMapper {
   }
 
   /**
+   * Map multiple rows to domain entities
+   */
+  toDomainMany(rows: CategoryRow[]): Category[] {
+    return rows.map((row) => this.toDomain(row));
+  }
+
+  /**
    * Convert domain entity to database row for persistence
    */
   toPersistence(category: Category): NewCategoryRow {
@@ -34,12 +42,5 @@ export class CategoryMapper {
       color: category.color?.value ?? null,
       icon: category.icon?.value ?? null,
     };
-  }
-
-  /**
-   * Map multiple rows to domain entities
-   */
-  toDomainMany(rows: CategoryRow[]): Category[] {
-    return rows.map((row) => this.toDomain(row));
   }
 }

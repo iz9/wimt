@@ -4,6 +4,7 @@ describe("Color", () => {
   describe("creation", () => {
     it("should create a color", () => {
       const color = Color.create("#FF0000");
+
       expect(color).toBeDefined();
     });
     it("should throw an error if the color is invalid type", () => {
@@ -26,20 +27,24 @@ describe("Color", () => {
     it("should compare colors", () => {
       const color1 = Color.create("#FF0000");
       const color2 = Color.create("#FF0000");
+
       expect(color1.equals(color2)).toBe(true);
 
       const color3 = Color.create("#00FF00");
+
       expect(color1.equals(color3)).toBe(false);
     });
 
     it("should be case insensitive", () => {
       const color1 = Color.create("#ffffff");
       const color2 = Color.create("#FFFFFF");
+
       expect(color1.equals(color2)).toBe(true);
     });
 
     it("should support short hex codes", () => {
       const color = Color.create("#F00");
+
       expect(color.value).toBe("#f00");
     });
   });

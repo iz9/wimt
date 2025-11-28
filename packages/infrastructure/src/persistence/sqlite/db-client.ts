@@ -1,7 +1,9 @@
-import { drizzle as drizzleExpo } from "drizzle-orm/expo-sqlite";
-import { drizzle as drizzleSqlJs } from "drizzle-orm/sql-js";
 import type { SQLiteDatabase } from "expo-sqlite";
 import type { Database } from "sql.js";
+
+import { drizzle as drizzleExpo } from "drizzle-orm/expo-sqlite";
+import { drizzle as drizzleSqlJs } from "drizzle-orm/sql-js";
+
 import * as schema from "./schema";
 
 export type DbClient =

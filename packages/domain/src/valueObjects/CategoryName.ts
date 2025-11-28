@@ -1,13 +1,21 @@
 import { invariant, isString } from "es-toolkit";
+
 import { ValidationDomainError } from "../errors/ValidationDomainError";
+
 export class CategoryName {
+  static MAX_LENGTH = 255;
+  static MIN_LENGTH = 1;
+
   private constructor(public readonly value: string) {}
+
   static create(value: string): CategoryName {
     invariant(
       isString(value),
       new ValidationDomainError("Category name must be a string"),
     );
+
     const trimmedValue = value.trim();
+
     invariant(
       trimmedValue.length >= CategoryName.MIN_LENGTH,
       new ValidationDomainError(
@@ -20,13 +28,14 @@ export class CategoryName {
         `Category name must not be longer than ${CategoryName.MAX_LENGTH} characters`,
       ),
     );
+
     return new CategoryName(trimmedValue);
   }
-  static MAX_LENGTH = 255;
-  static MIN_LENGTH = 1;
+
   equals(other: CategoryName): boolean {
     return this.value === other.value;
   }
+
   toJSON() {
     return this.value;
   }

@@ -1,10 +1,11 @@
+import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
 import { DateTime } from "../valueObjects/DateTime";
 import { SessionSegment } from "./SessionSegment";
-import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
 
 describe("SessionSegment", () => {
   let timestamp: number;
   let segment: SessionSegment;
+
   beforeEach(() => {
     timestamp = Date.now();
     segment = new SessionSegment({
@@ -106,7 +107,9 @@ describe("SessionSegment", () => {
     });
     it("should adjust startedAt when newStartTime is before stoppedAt", () => {
       segment.stop(segment.startedAt.add(1000));
+
       const prevStartedAt = segment.startedAt;
+
       segment.adjustStartTime(segment.startedAt.subtract(2000));
 
       expect(segment.startedAt.isSame(prevStartedAt)).toBe(false);

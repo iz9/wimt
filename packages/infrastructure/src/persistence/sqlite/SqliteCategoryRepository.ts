@@ -1,36 +1,38 @@
-import { Category } from "@wimt/domain/aggregates";
+import { eq } from "drizzle-orm";
+import { injectable, inject } from "inversify";
+
 import type { ICategoryRepository } from "@wimt/domain/repositories";
 import type { Specification } from "@wimt/domain/specifications";
+
+import { Category } from "@wimt/domain/aggregates";
 import { type ULID } from "@wimt/domain/valueObjects";
-import { injectable, inject } from "inversify";
-import { eq } from "drizzle-orm";
+
 import type { DbClient } from "./db-client";
-import { categories } from "./schema";
+
 import { CategoryMapper } from "./mappers/CategoryMapper";
+import { categories } from "./schema";
 
 export const DbClientSymbol = Symbol.for("DbClient");
 
 @injectable()
 export class SqliteCategoryRepository implements ICategoryRepository {
   private mapper = new CategoryMapper();
+
   constructor(@inject(DbClientSymbol) private db: DbClient) {}
 
-  async findManyBySpec(spec: Specification<Category>): Promise<Category[]> {
-    const allCategories = await this.findAll();
+  async count(): Promise<number> {
+    const result = await this.db.select().from(categories);
 
-    return allCategories.filter((category) => spec.isSatisfiedBy(category));
+    return result.length;
   }
 
-  async findOneBySpec(spec: Specification<Category>): Promise<Category | null> {
-    const allCategories = await this.findAll();
-
-    return (
-      allCategories.find((category) => spec.isSatisfiedBy(category)) || null
-    );
+  async delete(id: ULID): Promise<void> {
+    await this.db.delete(categories).where(eq(categories.id, id));
   }
 
   async findAll(): Promise<Category[]> {
     const rows = await this.db.select().from(categories);
+
     return this.mapper.toDomainMany(rows);
   }
 
@@ -46,6 +48,20 @@ export class SqliteCategoryRepository implements ICategoryRepository {
     }
 
     return this.mapper.toDomain(rows[0]!);
+  }
+
+  async findManyBySpec(spec: Specification<Category>): Promise<Category[]> {
+    const allCategories = await this.findAll();
+
+    return allCategories.filter((category) => spec.isSatisfiedBy(category));
+  }
+
+  async findOneBySpec(spec: Specification<Category>): Promise<Category | null> {
+    const allCategories = await this.findAll();
+
+    return (
+      allCategories.find((category) => spec.isSatisfiedBy(category)) || null
+    );
   }
 
   async save(category: Category): Promise<void> {
@@ -65,14 +81,5 @@ export class SqliteCategoryRepository implements ICategoryRepository {
     } else {
       await this.db.insert(categories).values(data);
     }
-  }
-
-  async delete(id: ULID): Promise<void> {
-    await this.db.delete(categories).where(eq(categories.id, id));
-  }
-
-  async count(): Promise<number> {
-    const result = await this.db.select().from(categories);
-    return result.length;
   }
 }

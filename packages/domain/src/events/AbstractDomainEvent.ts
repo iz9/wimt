@@ -1,4 +1,5 @@
 import { DateTime } from "../valueObjects/DateTime";
+
 /**
  * Base class for all domain events in the system.
  *

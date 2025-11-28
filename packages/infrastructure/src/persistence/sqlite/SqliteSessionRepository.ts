@@ -1,12 +1,16 @@
-import { Session } from "@wimt/domain/aggregates";
+import { eq } from "drizzle-orm";
+import { injectable, inject } from "inversify";
+
 import type { ISessionRepository } from "@wimt/domain/repositories";
 import type { Specification } from "@wimt/domain/specifications";
+
+import { Session } from "@wimt/domain/aggregates";
 import { type ULID } from "@wimt/domain/valueObjects";
-import { injectable, inject } from "inversify";
-import { eq, and } from "drizzle-orm";
+
 import type { DbClient } from "./db-client";
-import { sessions, sessionSegments } from "./schema";
+
 import { SessionMapper } from "./mappers/SessionMapper";
+import { sessions, sessionSegments } from "./schema";
 
 export const DbClientSymbol = Symbol.for("DbClient");
 
@@ -16,14 +20,20 @@ export class SqliteSessionRepository implements ISessionRepository {
 
   constructor(@inject(DbClientSymbol) private db: DbClient) {}
 
-  async findManyBySpec(spec: Specification<Session>): Promise<Session[]> {
-    const allSessions = await this.findAll();
-    return allSessions.filter((session) => spec.isSatisfiedBy(session));
+  async count(): Promise<number> {
+    const result = await this.db.select().from(sessions);
+
+    return result.length;
   }
 
-  async findOneBySpec(spec: Specification<Session>): Promise<Session | null> {
-    const allSessions = await this.findAll();
-    return allSessions.find((session) => spec.isSatisfiedBy(session)) || null;
+  async delete(id: ULID): Promise<void> {
+    // Delete segments first (foreign key constraint)
+    await this.db
+      .delete(sessionSegments)
+      .where(eq(sessionSegments.sessionId, id));
+
+    // Delete session
+    await this.db.delete(sessions).where(eq(sessions.id, id));
   }
 
   async findAll(): Promise<Session[]> {
@@ -66,6 +76,18 @@ export class SqliteSessionRepository implements ISessionRepository {
     return this.mapper.toDomain(sessionRow, segmentRows);
   }
 
+  async findManyBySpec(spec: Specification<Session>): Promise<Session[]> {
+    const allSessions = await this.findAll();
+
+    return allSessions.filter((session) => spec.isSatisfiedBy(session));
+  }
+
+  async findOneBySpec(spec: Specification<Session>): Promise<Session | null> {
+    const allSessions = await this.findAll();
+
+    return allSessions.find((session) => spec.isSatisfiedBy(session)) || null;
+  }
+
   async save(session: Session): Promise<void> {
     const sessionRow = this.mapper.sessionToPersistence(session);
     const allSegments = this.mapper.getAllSegments(session);
@@ -101,20 +123,5 @@ export class SqliteSessionRepository implements ISessionRepository {
 
       await this.db.insert(sessionSegments).values(segmentRows);
     }
-  }
-
-  async delete(id: ULID): Promise<void> {
-    // Delete segments first (foreign key constraint)
-    await this.db
-      .delete(sessionSegments)
-      .where(eq(sessionSegments.sessionId, id));
-
-    // Delete session
-    await this.db.delete(sessions).where(eq(sessions.id, id));
-  }
-
-  async count(): Promise<number> {
-    const result = await this.db.select().from(sessions);
-    return result.length;
   }
 }

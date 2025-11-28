@@ -1,8 +1,10 @@
 import { Session } from "@wimt/domain/aggregates";
 import { SessionSegment } from "@wimt/domain/entities";
-import { SessionMapper } from "./SessionMapper";
 import { DateTime, makeId } from "@wimt/domain/valueObjects";
+
 import type { SessionRow, SessionSegmentRow } from "../schema";
+
+import { SessionMapper } from "./SessionMapper";
 
 describe("SessionMapper", () => {
   const mapper = new SessionMapper();
@@ -149,6 +151,7 @@ describe("SessionMapper", () => {
       };
 
       // Pass non-array (simulating potential mock issue)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const session = mapper.toDomain(sessionRow, undefined as any);
 
       expect(session.id).toBe(sessionId);
@@ -350,6 +353,7 @@ describe("SessionMapper", () => {
       const sessionRow: SessionRow = {
         id: makeId(),
         categoryId: makeId(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         createdAt: timestamp as any, // Mock might return number
         stoppedAt: null,
         activeSegmentId: null,

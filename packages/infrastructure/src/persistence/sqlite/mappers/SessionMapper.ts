@@ -1,6 +1,7 @@
 import { Session } from "@wimt/domain/aggregates";
 import { SessionSegment } from "@wimt/domain/entities";
 import { DateTime, type ULID } from "@wimt/domain/valueObjects";
+
 import type {
   SessionRow,
   NewSessionRow,
@@ -9,6 +10,47 @@ import type {
 } from "../schema";
 
 export class SessionMapper {
+  /**
+   * Get all segments for persistence (history + active)
+   */
+  getAllSegments(session: Session): SessionSegment[] {
+    const segments = [...session.history];
+
+    if (session.activeSegment) {
+      segments.push(session.activeSegment);
+    }
+
+    return segments;
+  }
+
+  /**
+   * Convert domain SessionSegment to database row
+   */
+  segmentToPersistence(
+    segment: SessionSegment,
+    sessionId: ULID,
+  ): NewSessionSegmentRow {
+    return {
+      id: segment.id,
+      sessionId: sessionId,
+      startedAt: new Date(segment.startedAt.value),
+      stoppedAt: segment.stoppedAt ? new Date(segment.stoppedAt.value) : null,
+    };
+  }
+
+  /**
+   * Convert domain entity to session database row
+   */
+  sessionToPersistence(session: Session): NewSessionRow {
+    return {
+      id: session.id,
+      categoryId: session.categoryId,
+      createdAt: new Date(session.createdAt.value),
+      stoppedAt: session.stoppedAt ? new Date(session.stoppedAt.value) : null,
+      activeSegmentId: session.activeSegment?.id || null,
+    };
+  }
+
   /**
    * Convert database rows (session + segments) to domain entity
    */
@@ -42,47 +84,6 @@ export class SessionMapper {
   }
 
   /**
-   * Helper to convert various date formats to DateTime
-   */
-  private toDateTime(value: Date | number | null | undefined): DateTime {
-    if (!value) {
-      return DateTime.create(Date.now());
-    }
-    if (value instanceof Date) {
-      return DateTime.create(value.getTime());
-    }
-    return DateTime.create(value);
-  }
-
-  /**
-   * Convert domain entity to session database row
-   */
-  sessionToPersistence(session: Session): NewSessionRow {
-    return {
-      id: session.id,
-      categoryId: session.categoryId,
-      createdAt: new Date(session.createdAt.value),
-      stoppedAt: session.stoppedAt ? new Date(session.stoppedAt.value) : null,
-      activeSegmentId: session.activeSegment?.id || null,
-    };
-  }
-
-  /**
-   * Convert domain SessionSegment to database row
-   */
-  segmentToPersistence(
-    segment: SessionSegment,
-    sessionId: ULID,
-  ): NewSessionSegmentRow {
-    return {
-      id: segment.id,
-      sessionId: sessionId,
-      startedAt: new Date(segment.startedAt.value),
-      stoppedAt: segment.stoppedAt ? new Date(segment.stoppedAt.value) : null,
-    };
-  }
-
-  /**
    * Convert database segment row to domain SessionSegment
    */
   private segmentToDomain(row: SessionSegmentRow): SessionSegment {
@@ -94,13 +95,17 @@ export class SessionMapper {
   }
 
   /**
-   * Get all segments for persistence (history + active)
+   * Helper to convert various date formats to DateTime
    */
-  getAllSegments(session: Session): SessionSegment[] {
-    const segments = [...session.history];
-    if (session.activeSegment) {
-      segments.push(session.activeSegment);
+  private toDateTime(value: Date | number | null | undefined): DateTime {
+    if (!value) {
+      return DateTime.create(Date.now());
     }
-    return segments;
+
+    if (value instanceof Date) {
+      return DateTime.create(value.getTime());
+    }
+
+    return DateTime.create(value);
   }
 }
