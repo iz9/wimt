@@ -14,44 +14,62 @@ You are working on a time tracking application following strict DDD (Domain-Driv
 6. Application layer orchestrates use cases using domain objects
 
 **Current State:**
-- Domain package: `@wimt/domain` - contains entities, value objects, aggregates, events, and errors
+- ✅ Domain package complete: Entities, Value Objects, Aggregates, Events, Repositories (interfaces), Specifications
+- ✅ Infrastructure package implemented: SQLite + In-Memory repositories, Mappers with comprehensive tests
+- ❌ Application package: NOT YET CREATED
 - Apps: mobile (React Native), web (Next.js), docs (Next.js)
-- Key aggregates: Category, Session (with SessionSegment entities)
-- Domain events already defined for session lifecycle
+- Key aggregates: Category (complete), Session (complete) with SessionSegment entities
+- Domain events defined for session lifecycle
 - EventStorming document in `packages/domain/docs/eventStorming/eventStorming-19-11-25.md`
 
-**Next Steps:** Refer to this implementation plan document for the layered architecture implementation.
+**Next Steps:** Create Application layer with use cases, commands, queries, and event publisher.
 ```
 
 ---
 
 ## 📋 Overview
 
-This document outlines the next steps for implementing the time tracking application following DDD and Clean Architecture principles. The application tracks time spent on different categories, allowing users to start/pause/resume/stop sessions.
+This document outlines the implementation progress and next steps for the time tracking application following DDD and Clean Architecture principles.
 
 ### Current Architecture Status
 
 ✅ **Completed:**
 
-- Domain entities: `Category`
-- Aggregate root base class with event collection
-- Domain events: `CategoryCreated`, `SessionStarted`, `SessionPaused`, `SessionResumed`, `SessionStopped`, `SegmentTooShort`, `SessionExported`
-- Value objects: `DateTime`, `ULID`
-- Domain errors defined
-- EventStorming analysis complete
+#### Domain Layer (`@wimt/domain`)
 
-🔄 **In Progress:**
+- ✅ **Aggregates:** `Category`, `Session` (with full lifecycle: start, pause, resume, stop)
+- ✅ **Entities:** `SessionSegment` (with time adjustment, stop logic)
+- ✅ **Value Objects:** `ULID`, `DateTime`, `CategoryName`, `Color`, `Icon`
+- ✅ **Domain Events:** `CategoryCreated`, `SessionStarted`, `SessionPaused`, `SessionResumed`, `SessionStopped`, `SegmentAdjusted`, `SessionExported`
+- ✅ **Errors:** `DomainError`, `ValidationDomainError`, `NotFoundDomainError` with specific errors
+- ✅ **Repository Interfaces:** `ICategoryRepository`, `ISessionRepository`
+- ✅ **Specifications:** `Specification<T>` pattern with composable specs (AND/OR), including:
+  - Category specs: `ActiveCategorySpec`, `CategoryNameMatchesSpec`
+  - Session specs: `ActiveSessionSpec`, `PausedSessionSpec`, `StoppedSessionSpec`, `SessionForCategorySpec`
+- ✅ **Domain Services:** Session validation, segment overlap detection
+- ✅ **Base Classes:** `AggregateRoot` with domain event collection
 
-- Session aggregate implementation
-- SessionSegment entity
+#### Infrastructure Layer (`@wimt/infrastructure`)
+
+- ✅ **SQLite Schema:** Tables for categories, sessions, and session_segments
+- ✅ **Mappers:** `CategoryMapper`, `SessionMapper` (with complex aggregate mapping)
+- ✅ **Repositories:**
+  - `SqliteCategoryRepository` - SQLite persistence with Drizzle ORM
+  - `SqliteSessionRepository` - Multi-table aggregate persistence
+  - `InMemoryCategoryRepository` - In-memory for testing
+  - `InMemorySessionRepository` - In-memory for testing
+- ✅ **Database Client:** sql.js integration with Drizzle adapter
+- ✅ **Tests:** 59 passing unit tests across all repositories and mappers
+- ✅ **Dependency Injection:** InversifyJS setup with symbols
 
 ❌ **Missing:**
 
-- Application layer (use cases/command handlers)
-- Infrastructure layer (repositories, persistence, time provider implementation)
+- Application layer (use cases/command handlers/queries)
 - Presentation layer integration
-- Dependency injection container setup
-- Testing infrastructure
+- Application-level DI container configuration
+- Integration tests with real SQLite database
+- Read models for CQRS queries
+- Event publisher and handlers
 
 ---
 
@@ -61,22 +79,25 @@ This document outlines the next steps for implementing the time tracking applica
 ┌─────────────────────────────────────────────────────────┐
 │                    Presentation Layer                    │
 │              (Mobile, Web, API Adapters)                 │
+│                        ❌ TODO                           │
 └───────────────────────┬─────────────────────────────────┘
                         │
 ┌───────────────────────▼─────────────────────────────────┐
 │                   Application Layer                      │
 │        (Use Cases, Commands, Queries, DTOs)              │
+│                        ❌ TODO                           │
 └───────────────────────┬─────────────────────────────────┘
                         │
 ┌───────────────────────▼─────────────────────────────────┐
 │                     Domain Layer                         │
 │   (Entities, Aggregates, Value Objects, Events, Rules)   │
-│                    ⚠️ PURE - NO DEPS                     │
+│                    ✅ COMPLETE                           │
 └──────────────────────────────────────────────────────────┘
                         ▲
 ┌───────────────────────┴─────────────────────────────────┐
 │                 Infrastructure Layer                     │
 │     (Repositories, DB, File System, External APIs)       │
+│                    ✅ COMPLETE                           │
 └──────────────────────────────────────────────────────────┘
 ```
 
@@ -84,505 +105,446 @@ This document outlines the next steps for implementing the time tracking applica
 
 ## 📦 Package Structure
 
-### Recommended Monorepo Packages
+### Current Monorepo Packages
 
 ```
 packages/
-├── domain/              # ✅ Pure domain logic (exists)
-├── application/         # ❌ Use cases, command/query handlers (TO CREATE)
-├── infrastructure/      # ❌ Repositories, adapters (TO CREATE)
-└── shared/              # ❌ Common types, utilities (TO CREATE)
+├── domain/              # ✅ Complete - Pure domain logic
+├── infrastructure/      # ✅ Complete - Repositories, SQLite, mappers
+├── application/         # ❌ TO CREATE - Use cases, commands, queries
+└── shared/              # 🔄 Optional - Common types, utilities
 
 apps/
-├── mobile/             # React Native app
-├── web/                # Next.js web app
-└── docs/               # Documentation site
+├── mobile/              # React Native app (needs integration)
+├── web/                 # Next.js web app (needs integration)
+└── docs/                # Documentation site
 ```
 
 ---
 
-## 🎯 Implementation Steps
+## 🎯 Next Implementation Steps
 
-### Phase 1: Complete Domain Layer
+### **Phase 1: Create Application Layer Package** 🎯 **← NEXT STEP**
 
-#### 1.1 Session Aggregate (High Priority)
+#### Step 1.1: Package Setup
 
-**File:** `packages/domain/src/aggregates/Session.ts`
-
-**Requirements:**
-
-- Extends `AggregateRoot`
-- Contains `SessionSegment[]` entities
-- Properties:
-  - `id: ULID`
-  - `categoryId: ULID`
-  - `segments: SessionSegment[]`
-  - `isStopped: boolean`
-
-**Methods to implement:**
-
-- `static create(categoryId: ULID, timeProvider: TimeProvider): Session` - Creates new session with first segment
-- `pause(timeProvider: TimeProvider): void` - Pauses current active segment
-- `resume(timeProvider: TimeProvider): void` - Creates new segment
-- `stop(timeProvider: TimeProvider): void` - Stops session permanently
-- `getTotalDuration(): Duration` - Calculate total time across segments
-- `export(): ExportedSessionData` - Prepare data for export
-
-**Business Rules to Enforce:**
-
-- Only one active segment at a time
-- Cannot pause if no active segment (throw `NoActiveSegmentError`)
-- Cannot resume if already active
-- Cannot start new segment if stopped (throw `SessionAlreadyStoppedError`)
-- Segments < 300ms emit `SegmentTooShort` event and are not saved
-- No overlapping segments (throw `OverlapingSegmentError`)
-
-**Domain Events to Emit:**
-
-- `SessionStarted` - when session is created
-- `SessionPaused` - when segment ends
-- `SessionResumed` - when new segment starts after pause
-- `SessionStopped` - when session ends permanently
-- `SegmentTooShort` - when segment is filtered out
-
-#### 1.2 SessionSegment Entity
-
-**File:** `packages/domain/src/entities/SessionSegment.ts`
-
-**Requirements:**
-
-- NOT an aggregate root
-- Properties:
-  - `id: ULID`
-  - `startedAt: DateTime`
-  - `stoppedAt?: DateTime`
-
-**Methods:**
-
-- `static start(timeProvider: TimeProvider): SessionSegment`
-- `stop(timeProvider: TimeProvider): void`
-- `getDuration(): Duration`
-- `isActive(): boolean`
-
-#### 1.3 Enhanced Value Objects
-
-**File:** `packages/domain/src/valueObjects/Duration.ts`
-
-**Requirements:**
-
-- Constructor takes milliseconds
-- Factory methods: `fromMilliseconds()`, `between(start, end)`
-- Conversion methods: `toMilliseconds()`, `toSeconds()`, `toMinutes()`, `toHours()`
-- Comparison methods: `isLessThan()`, `add()`
-
-**Why:** Encapsulates duration calculations and comparisons, enforces business rule for minimum segment duration (300ms).
-
-#### 1.4 Repository Interfaces (Domain Layer)
-
-**File:** `packages/domain/src/repositories/ICategoryRepository.ts`
-
-**Methods:**
-
-- `save(category: Category): Promise<void>`
-- `findById(id: ULID): Promise<Category | null>`
-- `findAll(): Promise<Category[]>`
-
-**File:** `packages/domain/src/repositories/ISessionRepository.ts`
-
-**Methods:**
-
-- `save(session: Session): Promise<void>`
-- `findById(id: ULID): Promise<Session | null>`
-- `findByCategory(categoryId: ULID): Promise<Session[]>`
-- `findActive(): Promise<Session[]>`
-
-**Why:** Domain defines contracts, infrastructure provides implementations. This is dependency inversion.
-
----
-
-### Phase 2: Application Layer (New Package)
-
-#### 2.1 Create Application Package
-
-**Action:** Create `packages/application/` with proper package.json
-
-**Dependencies:**
-
-- `@wimt/domain` (workspace)
-- `inversify` for DI
-- `reflect-metadata`
-
-**Structure:**
+Create `packages/application/` with the following structure:
 
 ```
 packages/application/
 ├── src/
+│   ├── commands/           # Command DTOs (inputs)
+│   ├── queries/            # Query DTOs (read models)
 │   ├── useCases/
 │   │   ├── category/
-│   │   │   ├── CreateCategory.ts
-│   │   │   └── ListCategories.ts
 │   │   └── session/
-│   │       ├── StartSession.ts
-│   │       ├── PauseSession.ts
-│   │       ├── ResumeSession.ts
-│   │       ├── StopSession.ts
-│   │       └── ExportSession.ts
-│   ├── commands/
-│   │   └── ...command DTOs
-│   ├── queries/
-│   │   └── ...query DTOs
-│   └── services/
-│       └── DomainEventPublisher.ts
-└── package.json
+│   ├── services/
+│   │   └── DomainEventPublisher.ts
+│   └── index.ts
+├── package.json
+└── tsconfig.json
 ```
 
-#### 2.2 Use Case Implementation Pattern
+**Dependencies:**
 
-**Example:** `packages/application/src/useCases/session/StartSession.ts`
-
-**Structure:**
-
-- Inject dependencies: repositories, time provider, event publisher (all via interfaces)
-- Define command DTO (input) and result DTO (output)
-- Use `@injectable()` decorator for DI
-- Use `@inject()` for constructor parameters
-
-**Execution Flow:**
-
-1. Validate inputs (e.g., category exists)
-2. Use domain objects to execute business logic
-3. Persist changes via repositories
-4. Pull domain events from aggregates
-5. Publish events via event publisher
-6. Return result DTO
-
-**Why this pattern:**
-
-- Use case orchestrates the workflow
-- Domain objects contain business logic
-- Events are collected from aggregates and published
-- Infrastructure concerns (persistence) are abstracted via interfaces
-- Single responsibility: one use case per user action
-
-#### 2.3 Command/Query DTOs
-
-**File:** `packages/application/src/commands/CreateCategoryCommand.ts`
-
-**Purpose:** Define input/output interfaces for each use case
-
-**Why:** DTOs decouple external API from domain models, allow validation at application boundary.
-
-#### 2.4 Domain Event Publisher
-
-**File:** `packages/application/src/services/DomainEventPublisher.ts`
-
-**Responsibilities:**
-
-- Maintain map of event types to handler functions
-- `subscribe(eventType, handler)` - Register event listeners
-- `publish(event)` - Execute all handlers for given event type
-- Use `@injectable()` decorator for DI
-
-**Why:** Allows decoupled reaction to domain events (logging, analytics, notifications, read model updates).
-
----
-
-### Phase 3: Infrastructure Layer (New Package)
-
-#### 3.1 Create Infrastructure Package
-
-**Structure:**
-
-```
-packages/infrastructure/
-├── src/
-│   ├── persistence/
-│   │   ├── inMemory/
-│   │   │   ├── InMemoryCategoryRepository.ts
-│   │   │   └── InMemorySessionRepository.ts
-│   │   ├── sqlite/
-│   │   │   ├── SqliteCategoryRepository.ts
-│   │   │   └── SqliteSessionRepository.ts
-│   │   └── AsyncStorage/
-│   │       └── (React Native persistence)
-│   ├── time/
-│   │   └── SystemTimeProvider.ts
-│   └── export/
-│       └── MarkdownExporter.ts
-└── package.json
+```json
+{
+  "dependencies": {
+    "@wimt/domain": "workspace:*",
+    "inversify": "^6.0.2",
+    "reflect-metadata": "^0.2.1"
+  }
+}
 ```
 
-#### 3.2 Repository Implementations
+#### Step 1.2: Use Case Implementation Pattern
 
-**File:** `packages/infrastructure/src/persistence/inMemory/InMemoryCategoryRepository.ts`
+**Priority Use Cases to Implement:**
 
-**Implementation:**
+1. **Category Use Cases**
+   - `CreateCategoryUseCase` - Create new category
+   - `ListCategoriesUseCase` - Get all categories
+   - `DeleteCategoryUseCase` - Delete category
 
-- Use `Map<string, Category>` for in-memory storage
-- Implement all methods from `ICategoryRepository` interface
-- Use `@injectable()` decorator for DI
-- Simple CRUD operations using Map methods
+2. **Session Use Cases**
+   - `StartSessionUseCase` - Start tracking for a category
+   - `PauseSessionUseCase` - Pause active session
+   - `ResumeSessionUseCase` - Resume paused session
+   - `StopSessionUseCase` - Stop session permanently
+   - `GetActiveSessionUseCase` - Query current active session
 
-**Why Start with In-Memory:**
+**Use Case Pattern:**
 
-- Fast to implement
-- Perfect for testing
-- Can swap to real DB later without changing application layer
-- Demonstrates dependency inversion
+```typescript
+// packages/application/src/useCases/session/StartSessionUseCase.ts
+import { injectable, inject } from "inversify";
+import { Session } from "@wimt/domain/aggregates";
+import {
+  ISessionRepository,
+  ICategoryRepository,
+} from "@wimt/domain/repositories";
+import { NotFoundDomainError } from "@wimt/domain/errors";
+import { DomainEventPublisher } from "../../services/DomainEventPublisher";
 
-#### 3.3 Time Provider Implementation
+export interface StartSessionCommand {
+  categoryId: string;
+}
 
-**File:** `packages/infrastructure/src/time/SystemTimeProvider.ts`
+export interface StartSessionResult {
+  sessionId: string;
+  startedAt: number; // UTC milliseconds
+}
 
-**Implementation:**
+@injectable()
+export class StartSessionUseCase {
+  constructor(
+    @inject("ISessionRepository") private sessionRepo: ISessionRepository,
+    @inject("ICategoryRepository") private categoryRepo: ICategoryRepository,
+    @inject(DomainEventPublisher) private eventPublisher: DomainEventPublisher,
+  ) {}
 
-- Implements `TimeProvider` interface from domain
-- `now()` method returns `Date.now()`
-- Use `@injectable()` decorator
+  async execute(command: StartSessionCommand): Promise<StartSessionResult> {
+    // 1. Validate - category must exist
+    const category = await this.categoryRepo.findById(command.categoryId);
+    if (!category) {
+      throw new NotFoundDomainError(`Category ${command.categoryId} not found`);
+    }
 
-**File:** `packages/infrastructure/src/time/MockTimeProvider.ts` (for testing)
+    // 2. Create domain object (business logic in domain)
+    const session = new Session({
+      categoryId: command.categoryId,
+      createdAt: DateTime.create(Date.now()),
+    });
 
-**Implementation:**
+    // 3. Persist
+    await this.sessionRepo.save(session);
 
-- Implements `TimeProvider` interface
-- Maintains internal `currentTime` state
-- Additional methods for testing:
-  - `setTime(time)` - Set specific time
-  - `advance(ms)` - Move time forward by milliseconds
-- No `@injectable()` needed (used directly in tests)
+    // 4. Publish domain events
+    const events = session.pullDomainEvents();
+    events.forEach((event) => this.eventPublisher.publish(event));
 
-**Why:** Enables time-based testing, simulating pauses/resumes without actual delays.
+    // 5. Return result DTO
+    return {
+      sessionId: session.id,
+      startedAt: session.createdAt.value,
+    };
+  }
+}
+```
 
-#### 3.4 Export Service
+#### Step 1.3: Domain Event Publisher
 
-**File:** `packages/infrastructure/src/export/MarkdownExporter.ts`
+```typescript
+// packages/application/src/services/DomainEventPublisher.ts
+import { injectable } from "inversify";
+import { DomainEvent } from "@wimt/domain/events";
 
-**Responsibilities:**
+type EventHandler<T extends DomainEvent> = (event: T) => Promise<void> | void;
 
-- Takes `Session` and `Category` as input
-- Formats data as markdown string
-- Include: category name, total duration, list of segments with timestamps
-- Use `@injectable()` decorator
+@injectable()
+export class DomainEventPublisher {
+  private handlers = new Map<string, EventHandler<any>[]>();
 
----
+  subscribe<T extends DomainEvent>(
+    eventType: string,
+    handler: EventHandler<T>,
+  ): void {
+    const handlers = this.handlers.get(eventType) || [];
+    handlers.push(handler);
+    this.handlers.set(eventType, handlers);
+  }
 
-### Phase 4: Dependency Injection Setup
+  async publish(event: DomainEvent): Promise<void> {
+    const handlers = this.handlers.get(event.constructor.name) || [];
 
-#### 4.1 Create Container Configuration
+    for (const handler of handlers) {
+      await handler(event);
+    }
+  }
+}
+```
 
-**File:** `packages/application/src/di/container.ts`
+#### Step 1.4: Command & Query DTOs
 
-**Setup:**
+```typescript
+// packages/application/src/commands/CreateCategoryCommand.ts
+export interface CreateCategoryCommand {
+  name: string;
+  color?: string;
+  icon?: string;
+}
 
-- Import `Container` from inversify
-- Import `reflect-metadata` at top
-- Import all domain interfaces
-- Import all infrastructure implementations
-- Import all use cases
+export interface CreateCategoryResult {
+  categoryId: string;
+}
+```
 
-**Container Bindings:**
-
-1. Repositories - bind interface to implementation, use `.inSingletonScope()`
-2. Providers - bind `TimeProvider` to `SystemTimeProvider`, singleton
-3. Services - bind `DomainEventPublisher`, singleton
-4. Use Cases - bind each use case to itself with `.toSelf()` (transient)
-
-**Export:** `createContainer()` function that returns configured container
-
-**Why:**
-
-- Centralized dependency configuration
-- Easy to swap implementations (e.g., InMemory → SQLite)
-- Testability: can create test containers with mocks
-
-#### 4.2 App Integration
-
-**File:** `apps/mobile/app/contexts/DIContext.tsx`
-
-**Implementation:**
-
-- Create React Context for DI container
-- `DIProvider` component: creates container with `useMemo()`, provides via context
-- `useDI()` hook: gets container from context
-- `useUseCase<T>(identifier)` hook: resolves use case from container
-- Wrap app with `<DIProvider>` at root level
-
----
-
-### Phase 5: Testing Strategy
-
-#### 5.1 Domain Layer Tests
-
-**File:** `packages/domain/src/aggregates/Session.test.ts`
-
-**Test Cases:**
-
-- Session creation starts with one active segment
-- SessionStarted event is emitted on creation
-- Pause stops active segment and emits SessionPaused event
-- Segments shorter than 300ms are filtered with SegmentTooShort event
-- Cannot pause without active segment (throws NoActiveSegmentError)
-- Cannot resume stopped session (throws SessionAlreadyStoppedError)
-- Multiple pause/resume cycles create multiple segments
-
-**Testing Pattern:**
-
-- Use `MockTimeProvider` in `beforeEach()`
-- Use `timeProvider.advance(ms)` to simulate time passing
-- Check aggregate state and pulled domain events
-- Verify business rule violations throw correct errors
-
-**Why:** Domain logic is fully testable without any infrastructure dependencies.
-
-#### 5.2 Application Layer Tests
-
-**File:** `packages/application/src/useCases/session/StartSession.test.ts`
-
-**Test Cases:**
-
-- Successfully creates session for existing category
-- Returns session ID in result
-- Throws error when category doesn't exist
-- Events are published after session creation
-- Session is persisted in repository
-
-**Testing Pattern:**
-
-- Create test DI container in `beforeEach()`
-- Get use case and repositories from container
-- Set up test data (e.g., save category)
-- Execute use case
-- Verify results and side effects (persistence, events)
+```typescript
+// packages/application/src/queries/CategorySummaryQuery.ts
+export interface CategorySummaryDTO {
+  id: string;
+  name: string;
+  color: string | null;
+  icon: string | null;
+  activeSessions: number;
+  totalDurationMs: number;
+}
+```
 
 ---
 
-### Phase 6: UI Integration
+### Phase 2: Dependency Injection Container
 
-#### 6.1 React Native Hook Pattern
+#### Step 2.1: Container Configuration
 
-**File:** `apps/mobile/app/hooks/useStartSession.ts`
+```typescript
+// packages/application/src/di/container.ts
+import "reflect-metadata";
+import { Container } from "inversify";
+import {
+  ISessionRepository,
+  ICategoryRepository,
+} from "@wimt/domain/repositories";
+import {
+  SqliteSessionRepository,
+  SqliteCategoryRepository,
+  DbClient,
+  createSqlJsDbClient,
+} from "@wimt/infrastructure";
+import { DomainEventPublisher } from "../services/DomainEventPublisher";
 
-**Implementation:**
+// Use case imports
+import { StartSessionUseCase } from "../useCases/session/StartSessionUseCase";
+import { CreateCategoryUseCase } from "../useCases/category/CreateCategoryUseCase";
 
-- Use `useUseCase<StartSessionUseCase>()` to get use case instance
-- Wrap use case execution in `useCallback()`
-- Handle errors (logging, user feedback)
-- Return async function that takes categoryId
+export async function createContainer(): Promise<Container> {
+  const container = new Container();
 
-**File:** `apps/mobile/app/components/CategoryCard.tsx`
+  // Database Client
+  const db = await createSqlJsDbClient();
+  container.bind<DbClient>("DbClient").toConstantValue(db);
 
-**Implementation:**
+  // Repositories
+  container
+    .bind<ICategoryRepository>("ICategoryRepository")
+    .to(SqliteCategoryRepository)
+    .inSingletonScope();
 
-- Import and use custom hook (e.g., `useStartSession()`)
-- Call hook function on user action (button press)
-- Pass required parameters from component props
-- Handle loading/error states if needed
+  container
+    .bind<ISessionRepository>("ISessionRepository")
+    .to(SqliteSessionRepository)
+    .inSingletonScope();
 
-**Why:**
+  // Services
+  container.bind(DomainEventPublisher).toSelf().inSingletonScope();
 
-- UI only knows about use cases, not domain internals
-- Business logic stays in domain
-- Easy to test components (mock useUseCase)
+  // Use Cases
+  container.bind(StartSessionUseCase).toSelf();
+  container.bind(CreateCategoryUseCase).toSelf();
 
----
-
-## 🎨 Read Models & Queries (CQRS Pattern)
-
-### Query Side Implementation
-
-**File:** `packages/application/src/queries/GetCategorySummaryQuery.ts`
-
-**DTO Structure:**
-
-- `categoryId: string`
-- `categoryName: string`
-- `totalDurationMs: number`
-- `sessionCount: number`
-
-**Implementation:**
-
-- Use `@injectable()` decorator
-- Inject repositories via constructor
-- `execute()` method returns array of DTOs
-- Fetch all categories and sessions
-- Calculate aggregations (total duration, count)
-- Map to DTO format
-
-**Why:** Separation of reads (queries) from writes (commands). Queries can be optimized differently from writes.
-
----
-
-## 🔒 Business Rules Summary
-
-| Rule                                | Enforcement Location | Error if Violated            |
-| ----------------------------------- | -------------------- | ---------------------------- |
-| Only one active segment per session | Session aggregate    | `OverlapingSegmentError`     |
-| Cannot pause without active segment | Session aggregate    | `NoActiveSegmentError`       |
-| Segments < 300ms not saved          | Session aggregate    | Emits `SegmentTooShort`      |
-| Cannot resume stopped session       | Session aggregate    | `SessionAlreadyStoppedError` |
-| Category name required              | Category entity      | `DomainError` (invariant)    |
+  return container;
+}
+```
 
 ---
 
-## 📚 Documentation to Maintain
+### Phase 3: Testing Application Layer
 
-1. **EventStorming Diagram** - Update when new events/commands are discovered
-2. **Architecture Decision Records (ADRs)** - Document WHY certain patterns chosen
-3. **API Documentation** - Use cases as API contracts
-4. **Testing Guidelines** - How to test each layer
+#### Step 3.1: Use Case Tests
 
----
+```typescript
+// packages/application/src/useCases/session/StartSessionUseCase.test.ts
+describe("StartSessionUseCase", () => {
+  let container: Container;
+  let useCase: StartSessionUseCase;
+  let sessionRepo: ISessionRepository;
+  let categoryRepo: ICategoryRepository;
 
-## 🚀 Migration Path
+  beforeEach(async () => {
+    container = await createTestContainer(); // In-memory repositories
+    useCase = container.get(StartSessionUseCase);
+    sessionRepo = container.get<ISessionRepository>("ISessionRepository");
+    categoryRepo = container.get<ICategoryRepository>("ICategoryRepository");
+  });
 
-### From Current State to Clean Architecture
+  it("should start session for existing category", async () => {
+    // Setup
+    const category = new Category({ name: CategoryName.create("Work") });
+    await categoryRepo.save(category);
 
-**Step 1:** Complete domain aggregates (Session, SessionSegment)  
-**Step 2:** Create application package with basic use cases  
-**Step 3:** Create infrastructure package with in-memory repositories  
-**Step 4:** Set up DI container  
-**Step 5:** Integrate one use case end-to-end (e.g., StartSession)  
-**Step 6:** Gradually add remaining use cases  
-**Step 7:** Replace in-memory with persistent storage
+    // Execute
+    const result = await useCase.execute({
+      categoryId: category.id,
+    });
 
-**Avoid:**
+    // Verify
+    expect(result.sessionId).toBeDefined();
+    const session = await sessionRepo.findById(result.sessionId);
+    expect(session).not.toBeNull();
+    expect(session!.state).toBe("active");
+  });
 
-- ❌ Creating all layers at once
-- ❌ Coupling UI directly to domain
-- ❌ Putting business logic in use cases
-- ❌ Using domain entities as DTOs
-
----
-
-## 🧪 Quality Metrics
-
-- **Domain Purity:** Zero imports from infrastructure/application in domain layer
-- **Test Coverage:** >80% for domain layer, >70% for application layer
-- **Dependency Direction:** Always toward domain, never outward
-- **Event Coverage:** All state changes emit domain events
-
----
-
-## 📖 References
-
-- [Domain-Driven Design by Eric Evans](https://www.domainlanguage.com/ddd/)
-- [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [Implementing Domain-Driven Design by Vaughn Vernon](https://vaughnvernon.co/?page_id=168)
-
----
-
-## 📝 Notes for Future Context
-
-- All timestamps use `DateTime` (number) value object, implementation in `TimeProvider`
-- ULID used for all IDs (time-sortable)
-- Domain events are pull-based (aggregates collect, app layer publishes)
-- Inversify used for DI (already in dependencies)
-- Monorepo uses pnpm workspaces + Turborepo
-- Mobile uses React Native, Web uses Next.js
-- Domain package has no exports defined in package.json yet - need to add proper exports map
+  it("should throw error when category does not exist", async () => {
+    await expect(
+      useCase.execute({ categoryId: "non-existent-id" }),
+    ).rejects.toThrow(NotFoundDomainError);
+  });
+});
+```
 
 ---
 
-**Last Updated:** 2025-11-23  
-**Status:** Planning Phase  
-**Next Action:** Implement Session aggregate and SessionSegment entity
+### Phase 4: UI Integration (After Application Layer)
+
+#### Step 4.1: React Context for DI
+
+```typescript
+// apps/mobile/app/contexts/DIContext.tsx
+import React, { createContext, useContext, useMemo } from 'react';
+import { Container } from 'inversify';
+import { createContainer } from '@wimt/application';
+
+const DIContext = createContext<Container | null>(null);
+
+export function DIProvider({ children }: { children: React.ReactNode }) {
+  const container = useMemo(() => createContainer(), []);
+
+  return (
+    <DIContext.Provider value={container}>
+      {children}
+    </DIContext.Provider>
+  );
+}
+
+export function useContainer(): Container {
+  const container = useContext(DIContext);
+  if (!container) {
+    throw new Error('useContainer must be used within DIProvider');
+  }
+  return container;
+}
+
+export function useUseCase<T>(identifier: any): T {
+  const container = useContainer();
+  return container.get<T>(identifier);
+}
+```
+
+#### Step 4.2: Custom Hooks
+
+```typescript
+// apps/mobile/app/hooks/useStartSession.ts
+import { useCallback } from "react";
+import { StartSessionUseCase } from "@wimt/application";
+import { useUseCase } from "../contexts/DIContext";
+
+export function useStartSession() {
+  const useCase = useUseCase<StartSessionUseCase>(StartSessionUseCase);
+
+  return useCallback(
+    async (categoryId: string) => {
+      try {
+        const result = await useCase.execute({ categoryId });
+        return result;
+      } catch (error) {
+        console.error("Failed to start session:", error);
+        throw error;
+      }
+    },
+    [useCase],
+  );
+}
+```
+
+---
+
+## 🎯 Recommended Next Steps Priority
+
+### ✨ Immediate Next Step (This Session):
+
+**Create Application Package with Essential Use Cases**
+
+1. Create `packages/application/` directory structure
+2. Implement `DomainEventPublisher`
+3. Implement first use case: `StartSessionUseCase`
+4. Implement second use case: `CreateCategoryUseCase`
+5. Create DI container configuration
+6. Write tests for both use cases
+
+### After Application Layer:
+
+1. **Integration Tests** - Test entire flow from use case → repository → database
+2. **Read Models** - Implement CQRS queries for statistics/summaries
+3. **UI Integration** - Connect React Native app to use cases
+4. **Event Handlers** - Add side effects (logging, analytics, notifications)
+
+---
+
+## 📊 Progress Summary
+
+| Layer              | Status         | Completion |
+| ------------------ | -------------- | ---------- |
+| **Domain**         | ✅ Complete    | 100%       |
+| **Infrastructure** | ✅ Complete    | 100%       |
+| **Application**    | ❌ Not Started | 0%         |
+| **Presentation**   | ❌ Not Started | 0%         |
+
+**Test Coverage:**
+
+- Domain: ✅ Well tested (complex aggregate logic verified)
+- Infrastructure: ✅ 59 passing unit tests
+- Application: ❌ No tests yet
+- Integration: ❌ No tests yet
+
+---
+
+## 🧭 Architecture Decisions
+
+### Key Patterns Used
+
+1. **Domain-Driven Design**
+   - Aggregates enforce business rules
+   - Value objects for immutability
+   - Domain events for side effects
+
+2. **Clean Architecture**
+   - Dependency inversion (domain → infrastructure)
+   - Use cases orchestrate workflows
+   - DTOs separate external API from domain
+
+3. **CQRS** (Partial)
+   - Specifications for flexible queries
+   - Read models planned for statistics
+
+4. **Repository Pattern**
+   - Interfaces in domain
+   - Multiple implementations (SQLite, In-Memory)
+   - Mappers handle persistence concerns
+
+---
+
+## 📝 Technical Decisions
+
+### Date/Time Handling
+
+- **Storage:** Unix timestamps (milliseconds) in SQLite INTEGER columns
+- **Domain:** `DateTime` value object wrapping milliseconds
+- **Database:** Drizzle's `{ mode: "timestamp_ms" }` for type-safe Date conversion
+- **Timezone:** All UTC in storage, convert to user timezone in UI
+
+### ID Generation
+
+- **Format:** ULID (Universally Unique Lexicographically Sortable Identifier)
+- **Benefits:** Time-sortable, URL-safe, 128-bit like UUID
+
+### Persistence
+
+- **Primary:** SQLite with sql.js (works in browser & React Native)
+- **ORM:** Drizzle ORM for type-safe queries
+- **Testing:** In-memory repositories for fast unit tests
+
+---
+
+**Last Updated:** 2024-11-28  
+**Status:** Domain ✅ | Infrastructure ✅ | **Next: Application Layer** 🎯  
+**Next Action:** Create `packages/application/` with use cases and DI container
