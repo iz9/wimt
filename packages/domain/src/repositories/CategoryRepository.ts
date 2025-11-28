@@ -3,12 +3,12 @@ import { Specification } from "../specifications";
 import { ULID } from "../valueObjects";
 
 export interface ICategoryRepository {
-  // spec is optional. If not provided, returns all categories
-  find(spec?: Specification<Category>): Promise<Category[]>;
-  findOne(spec: Specification<Category>): Promise<Category | null>;
+  findManyBySpec(spec: Specification<Category>): Promise<Category[]>;
+  findOneBySpec(spec: Specification<Category>): Promise<Category | null>;
+  findById(id: ULID): Promise<Category | null>;
+  findAll(): Promise<Category[]>;
   save(category: Category): Promise<void>;
   delete(id: ULID): Promise<void>;
-  findById(id: ULID): Promise<Category | null>;
   count(): Promise<number>;
 }
 
