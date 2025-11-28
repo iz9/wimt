@@ -1,7 +1,7 @@
 import { ULID } from "ulid";
 
 import { EntityBase } from "../entities/Entity.base";
-import { AbstractDomainEvent } from "../events/AbstractDomainEvent";
+import { DomainEvent } from "../events";
 
 /**
  * Base AggregateRoot that collects domain events (simple event buffer).
@@ -29,13 +29,13 @@ import { AbstractDomainEvent } from "../events/AbstractDomainEvent";
  * ```
  */
 export class AggregateRoot extends EntityBase {
-  private _domainEvents: AbstractDomainEvent[] = [];
+  private _domainEvents: DomainEvent[] = [];
 
   constructor(id?: ULID) {
     super(id);
   }
 
-  public pullDomainEvents(): AbstractDomainEvent[] {
+  public pullDomainEvents(): DomainEvent[] {
     const evts = this._domainEvents.slice();
 
     this._domainEvents = [];
@@ -43,7 +43,7 @@ export class AggregateRoot extends EntityBase {
     return evts;
   }
 
-  protected addEvent(event: AbstractDomainEvent): void {
+  protected addEvent(event: DomainEvent): void {
     this._domainEvents.push(event);
   }
 }

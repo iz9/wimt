@@ -1,6 +1,6 @@
 import { invariant, isString } from "es-toolkit";
 
-import { ValidationDomainError } from "../errors/ValidationDomainError";
+import { ValidationDomainError } from "../errors";
 
 export class Icon {
   private constructor(public readonly value: string) {}

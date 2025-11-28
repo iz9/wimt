@@ -1,11 +1,12 @@
-import { SessionSegment } from "../entities/SessionSegment";
-import { SegmentTooShort } from "../events/SegmentTooShort";
-import { SessionPaused } from "../events/SessionPaused";
-import { SessionResumed } from "../events/SessionResumed";
-import { SessionStarted } from "../events/SessionStarted";
-import { SessionStopped } from "../events/SessionStopped";
-import { DateTime } from "../valueObjects/DateTime";
-import { makeId, ULID } from "../valueObjects/ulid";
+import { SessionSegment } from "../entities";
+import {
+  SegmentTooShort,
+  SessionPaused,
+  SessionResumed,
+  SessionStopped,
+  SessionStarted,
+} from "../events";
+import { DateTime, makeId, type ULID } from "../valueObjects";
 import { Session } from "./Session";
 
 describe("Session", () => {

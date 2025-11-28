@@ -1,6 +1,6 @@
 import { invariant } from "es-toolkit";
 
-import { ValidationDomainError } from "../errors/ValidationDomainError";
+import { ValidationDomainError } from "../errors";
 
 export type Diff = {
   value: number;

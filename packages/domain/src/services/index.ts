@@ -1,0 +1,1 @@
+export { SegmentCollectionValidator } from "./SegmentCollectionValidator";

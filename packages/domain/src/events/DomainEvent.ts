@@ -1,4 +1,4 @@
-import { DateTime } from "../valueObjects/DateTime";
+import { DateTime } from "../valueObjects";
 
 /**
  * Base class for all domain events in the system.
@@ -30,7 +30,7 @@ import { DateTime } from "../valueObjects/DateTime";
  * }
  * ```
  */
-export abstract class AbstractDomainEvent {
+export abstract class DomainEvent {
   abstract readonly type: string;
 
   protected constructor(public readonly occurredAt: DateTime) {}

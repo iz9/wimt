@@ -1,23 +1,26 @@
 import { invariant, isNil, isNotNil, last } from "es-toolkit";
 
-import { SessionSegment } from "../entities/SessionSegment";
-import { DomainError } from "../errors/DomainError";
-import { EmptySessionError } from "../errors/EpmtySessionError";
-import { NoActiveSegmentError } from "../errors/NoActiveSegmentError";
-import { TooShortSegmentError } from "../errors/TooShortSegmentError";
-import { ValidationDomainError } from "../errors/ValidationDomainError";
-import { SegmentTooShort } from "../events/SegmentTooShort";
-import { SessionPaused } from "../events/SessionPaused";
-import { SessionResumed } from "../events/SessionResumed";
-import { SessionStarted } from "../events/SessionStarted";
-import { SessionStopped } from "../events/SessionStopped";
-import { SegmentCollectionValidator } from "../services/SegmentCollectionValidator";
+import { SessionSegment } from "../entities";
 import {
-  ValidSegmentDurationSpec,
+  DomainError,
+  EmptySessionError,
+  NoActiveSegmentError,
+  TooShortSegmentError,
+  ValidationDomainError,
+} from "../errors";
+import {
+  SessionPaused,
+  SegmentTooShort,
+  SessionResumed,
+  SessionStarted,
+  SessionStopped,
+} from "../events";
+import { SegmentCollectionValidator } from "../services";
+import {
   StoppedSegmentSpec,
+  ValidSegmentDurationSpec,
 } from "../specifications";
-import { DateTime } from "../valueObjects/DateTime";
-import { makeId, ULID } from "../valueObjects/ulid";
+import { DateTime, makeId, type ULID } from "../valueObjects";
 import { AggregateRoot } from "./AggregateRoot";
 
 type SessionProps = {

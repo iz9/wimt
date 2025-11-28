@@ -1,6 +1,6 @@
-import { ulid as generateULID } from "ulid";
+import { ulid as generateULID, ULID as ULID_BASE } from "ulid";
 
-export type ULID = string;
+export type ULID = ULID_BASE;
 
 /**
  * lightweight wrapper around ulid generator

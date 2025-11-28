@@ -1,6 +1,6 @@
 import { isNil } from "es-toolkit";
 
-import { SessionSegment } from "../entities/SessionSegment";
+import { SessionSegment } from "../entities";
 
 interface ValidationResult {
   isValid: boolean;

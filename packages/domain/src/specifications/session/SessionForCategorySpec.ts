@@ -1,6 +1,6 @@
-import type { ULID } from "../../valueObjects/ulid";
+import type { ULID } from "../../valueObjects";
 
-import { Session } from "../../aggregate/Session";
+import { Session } from "../../aggregate";
 import { CompositeSpecification } from "../Specification";
 
 /**

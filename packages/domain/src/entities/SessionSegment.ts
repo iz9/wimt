@@ -1,9 +1,7 @@
 import { invariant } from "es-toolkit";
 
-import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
-import { ValidationDomainError } from "../errors/ValidationDomainError";
-import { DateTime } from "../valueObjects/DateTime";
-import { ULID } from "../valueObjects/ulid";
+import { SegmentAlreadyStoppedError, ValidationDomainError } from "../errors";
+import { DateTime, type ULID } from "../valueObjects";
 import { EntityBase } from "./Entity.base";
 
 type SessionSegmentProps = {

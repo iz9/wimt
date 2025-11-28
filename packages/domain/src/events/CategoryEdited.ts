@@ -1,9 +1,7 @@
-import { ULID } from "ulid";
+import { DateTime, type ULID } from "../valueObjects";
+import { DomainEvent } from "./DomainEvent";
 
-import { DateTime } from "../valueObjects/DateTime";
-import { AbstractDomainEvent } from "./AbstractDomainEvent";
-
-export class CategoryEdited extends AbstractDomainEvent {
+export class CategoryEdited extends DomainEvent {
   readonly type = "CategoryEdited";
 
   constructor(

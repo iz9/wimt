@@ -1,4 +1,4 @@
-import type { Category } from "../../aggregate/Category";
+import type { Category } from "../../aggregate";
 
 import { CompositeSpecification } from "../Specification";
 

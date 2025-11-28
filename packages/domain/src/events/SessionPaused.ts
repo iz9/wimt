@@ -1,8 +1,7 @@
-import { DateTime } from "../valueObjects/DateTime";
-import { ULID } from "../valueObjects/ulid";
-import { AbstractDomainEvent } from "./AbstractDomainEvent";
+import { DateTime, type ULID } from "../valueObjects";
+import { DomainEvent } from "./DomainEvent";
 
-export class SessionPaused extends AbstractDomainEvent {
+export class SessionPaused extends DomainEvent {
   readonly type = "SessionPaused";
 
   constructor(

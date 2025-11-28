@@ -1,4 +1,4 @@
-import { SessionSegment } from "../../entities/SessionSegment";
+import { SessionSegment } from "../../entities";
 import { CompositeSpecification } from "../Specification";
 
 /**

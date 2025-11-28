@@ -1,5 +1,5 @@
-import { SegmentAlreadyStoppedError } from "../errors/SegmentAlreadyStoppedError";
-import { DateTime } from "../valueObjects/DateTime";
+import { SegmentAlreadyStoppedError } from "../errors";
+import { DateTime } from "../valueObjects";
 import { SessionSegment } from "./SessionSegment";
 
 describe("SessionSegment", () => {

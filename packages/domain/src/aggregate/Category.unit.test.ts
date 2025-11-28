@@ -1,9 +1,5 @@
-import { CategoryCreated } from "../events/CategoryCreated";
-import { CategoryEdited } from "../events/CategoryEdited";
-import { CategoryName } from "../valueObjects/CategoryName";
-import { Color } from "../valueObjects/Color";
-import { DateTime } from "../valueObjects/DateTime";
-import { Icon } from "../valueObjects/Icon";
+import { CategoryCreated, CategoryEdited } from "../events";
+import { CategoryName, Color, DateTime, Icon } from "../valueObjects";
 import { Category } from "./Category";
 
 describe("Category", () => {

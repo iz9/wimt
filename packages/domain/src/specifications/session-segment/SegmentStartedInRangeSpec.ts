@@ -1,6 +1,6 @@
-import type { DateTime } from "../../valueObjects/DateTime";
+import type { DateTime } from "../../valueObjects";
 
-import { SessionSegment } from "../../entities/SessionSegment";
+import { SessionSegment } from "../../entities";
 import { CompositeSpecification } from "../Specification";
 
 /**

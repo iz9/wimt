@@ -1,4 +1,4 @@
-import { SessionSegment } from "../../entities/SessionSegment";
+import { SessionSegment } from "../../entities";
 import { CompositeSpecification } from "../Specification";
 
 export class ActiveSegmentSpec extends CompositeSpecification<SessionSegment> {

@@ -1,7 +1,7 @@
-import { DateTime } from "../valueObjects/DateTime";
-import { AbstractDomainEvent } from "./AbstractDomainEvent";
+import { DateTime } from "../valueObjects";
+import { DomainEvent } from "./DomainEvent";
 
-export class SessionExported extends AbstractDomainEvent {
+export class SessionExported extends DomainEvent {
   readonly type = "SessionExported";
 
   constructor(

@@ -1,9 +1,7 @@
-import { ULID } from "ulid";
+import { DateTime, type ULID } from "../valueObjects";
+import { DomainEvent } from "./DomainEvent";
 
-import { DateTime } from "../valueObjects/DateTime";
-import { AbstractDomainEvent } from "./AbstractDomainEvent";
-
-export class SegmentTooShort extends AbstractDomainEvent {
+export class SegmentTooShort extends DomainEvent {
   readonly type = "SegmentTooShort";
 
   constructor(

@@ -1,12 +1,7 @@
 import { isNil } from "es-toolkit";
 
-import { CategoryCreated } from "../events/CategoryCreated";
-import { CategoryEdited } from "../events/CategoryEdited";
-import { CategoryName } from "../valueObjects/CategoryName";
-import { Color } from "../valueObjects/Color";
-import { DateTime } from "../valueObjects/DateTime";
-import { Icon } from "../valueObjects/Icon";
-import { ULID } from "../valueObjects/ulid";
+import { CategoryCreated, CategoryEdited } from "../events";
+import { CategoryName, Color, DateTime, Icon, ULID } from "../valueObjects";
 import { AggregateRoot } from "./AggregateRoot";
 
 type CategoryProps = {

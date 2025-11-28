@@ -1,4 +1,4 @@
-import { makeId, ULID } from "../valueObjects/ulid";
+import { makeId, ULID } from "../valueObjects";
 
 export class EntityBase {
   readonly id!: ULID;

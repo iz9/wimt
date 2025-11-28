@@ -1,4 +1,4 @@
-import { Session } from "../../aggregate/Session";
+import { Session } from "../../aggregate";
 import { CompositeSpecification } from "../Specification";
 
 /**
