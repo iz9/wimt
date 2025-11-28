@@ -23,3 +23,5 @@ export function createExpoDbClient(expoDb: SQLiteDatabase) {
 export function createSqlJsDbClient(sqlJsDb: Database) {
   return drizzleSqlJs(sqlJsDb, { schema });
 }
+
+export const DbClientSymbol = Symbol.for("DbClient");

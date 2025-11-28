@@ -8,4 +8,8 @@ export default {
   transform: {
     ...tsJestTransformCfg,
   },
+  testPathIgnorePatterns: ["<rootDir>/node_modules/expo-sqlite*"],
+  moduleNameMapper: {
+    "^drizzle-orm/expo-sqlite$": "<rootDir>/src/__mocks__/drizzle-expo.ts",
+  },
 };

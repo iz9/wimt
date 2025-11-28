@@ -1,14 +1,10 @@
-export {
-  SqliteCategoryRepository,
-  DbClientSymbol,
-} from "./SqliteCategoryRepository";
+export { SqliteCategoryRepository } from "./SqliteCategoryRepository";
 
 export {
   createExpoDbClient,
   createSqlJsDbClient,
+  DbClientSymbol,
   type DbClient,
 } from "./db-client";
-
-export { categories } from "./schema";
 
 export * as schema from "./schema";

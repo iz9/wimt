@@ -6,10 +6,8 @@ import { Category } from "@wimt/domain/aggregates";
 import { CategoryNameMatchesSpec } from "@wimt/domain/specifications";
 import { CategoryName, Color, Icon, DateTime } from "@wimt/domain/valueObjects";
 
-import {
-  SqliteCategoryRepository,
-  DbClientSymbol,
-} from "./SqliteCategoryRepository";
+import { DbClientSymbol } from "./db-client";
+import { SqliteCategoryRepository } from "./SqliteCategoryRepository";
 
 // Mock drizzle db client
 const createMockDbClient = () => {

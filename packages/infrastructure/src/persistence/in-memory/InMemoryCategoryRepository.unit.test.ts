@@ -14,7 +14,7 @@ import {
 } from "@wimt/domain/specifications";
 import { CategoryName } from "@wimt/domain/valueObjects";
 
-import { TimeService } from "../../time/TimeService";
+import { TimeService } from "../../services";
 import { InMemoryCategoryRepository } from "./InMemoryCategoryRepository";
 
 class IdSpec extends CompositeSpecification<Category> {

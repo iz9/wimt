@@ -3,7 +3,11 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
-  "exports": {},
+  "exports": {
+    "./db/sqlite": "./persistence/sqlite",
+    "./db/in-memory": "./persistence/in-memory",
+    "./services": "./services"
+  },
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",

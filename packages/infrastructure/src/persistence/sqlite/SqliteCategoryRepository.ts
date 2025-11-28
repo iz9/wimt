@@ -9,10 +9,9 @@ import { type ULID } from "@wimt/domain/valueObjects";
 
 import type { DbClient } from "./db-client";
 
+import { DbClientSymbol } from "./db-client";
 import { CategoryMapper } from "./mappers/CategoryMapper";
 import { categories } from "./schema";
-
-export const DbClientSymbol = Symbol.for("DbClient");
 
 @injectable()
 export class SqliteCategoryRepository implements ICategoryRepository {

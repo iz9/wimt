@@ -17,7 +17,7 @@ import {
 } from "@wimt/domain/specifications";
 import { makeId } from "@wimt/domain/valueObjects";
 
-import { TimeService } from "../../time/TimeService";
+import { TimeService } from "../../services/time/TimeService";
 import { InMemorySessionRepository } from "./InMemorySessionRepository";
 
 class IdSpec extends CompositeSpecification<Session> {

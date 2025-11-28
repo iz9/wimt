@@ -11,10 +11,8 @@ import {
 } from "@wimt/domain/specifications";
 import { DateTime, makeId } from "@wimt/domain/valueObjects";
 
-import {
-  SqliteSessionRepository,
-  DbClientSymbol,
-} from "./SqliteSessionRepository";
+import { DbClientSymbol } from "./db-client";
+import { SqliteSessionRepository } from "./SqliteSessionRepository";
 
 // Enhanced mock for sessions with multiple tables
 const createMockDbClient = () => {
