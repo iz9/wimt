@@ -1,16 +1,9 @@
 {
-  "name": "@wimt/domain",
+  "name": "@wimt/infrastructure",
   "version": "0.0.0",
   "type": "module",
   "private": true,
-  "exports": {
-    "./aggregates": "./src/aggregate/index.ts",
-    "./entities": "./src/entities/index.ts",
-    "./repositories": "./src/repositories/index.ts",
-    "./specifications": "./src/specifications/index.ts",
-    "./shared": "./src/shared/index.ts",
-    "./valueObjects": "./src/valueObjects/index.ts"
-  },
+  "exports": {},
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
@@ -22,6 +15,8 @@
     "@eslint/js": "^9.39.1",
     "@next/eslint-plugin-next": "^15.5.0",
     "@types/jest": "^30.0.0",
+    "@types/sql.js": "^1.4.9",
+    "@wimt/domain": "workspace:*",
     "@wimt/eslint-config": "workspace:*",
     "@wimt/typescript-config": "workspace:*",
     "eslint": "^9.39.1",
@@ -37,7 +32,13 @@
     "typescript-eslint": "^8.46.3"
   },
   "dependencies": {
+    "@sqlite.org/sqlite-wasm": "3.51.1-build1",
+    "dayjs": "^1.11.19",
+    "drizzle-orm": "^0.44.7",
     "es-toolkit": "^1.42.0",
+    "expo-sqlite": "^16.0.9",
+    "inversify": "^7.10.4",
+    "reflect-metadata": "^0.2.2",
     "ulid": "^3.0.1"
   }
 }

@@ -1,5 +1,7 @@
-import { DateTime } from "../valueObjects/DateTime";
+import { DateTime } from "../valueObjects";
 
-export interface TimeService {
+export interface ITimeService {
   now(): DateTime;
 }
+
+export const TimeServiceSymbol = Symbol("TimeService");
