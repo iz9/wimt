@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { InMemorySessionRepository } from "./InMemorySessionRepository";
 import { Session } from "@wimt/domain/aggregates";
-import { DateTime, makeId } from "@wimt/domain/valueObjects";
+import { makeId } from "@wimt/domain/valueObjects";
 import {
   ActiveSessionSpec,
   StoppedSessionSpec,
