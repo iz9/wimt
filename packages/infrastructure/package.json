@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./db/sqlite": "./persistence/sqlite",
-    "./db/in-memory": "./persistence/in-memory",
-    "./services": "./services"
+    "./db/sqlite": "./src/persistence/sqlite/index.ts",
+    "./db/in-memory": "./src/persistence/in-memory/index.ts",
+    "./services": "./src/services/index.ts"
   },
   "scripts": {
     "test": "jest",
