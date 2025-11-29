@@ -212,6 +212,12 @@ importers:
       '@wimt/domain':
         specifier: workspace:*
         version: link:../domain
+      '@wimt/infrastructure':
+        specifier: workspace:*
+        version: link:../infrastructure
+      es-toolkit:
+        specifier: ^1.42.0
+        version: 1.42.0
       inversify:
         specifier: ^6.0.2
         version: 6.2.2(reflect-metadata@0.2.2)
@@ -222,9 +228,12 @@ importers:
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
-      '@wimt/infrastructure':
+      '@wimt/eslint-config':
         specifier: workspace:*
-        version: link:../infrastructure
+        version: link:../eslint-config
+      '@wimt/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       jest:
         specifier: ^30.2.0
         version: 30.2.0(@types/node@22.15.3)
