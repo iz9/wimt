@@ -1,17 +1,17 @@
-export { CategoryCreated } from "./CategoryCreated";
+export { CategoryCreatedDomainEvent } from "./CategoryCreatedDomainEvent";
 
-export { CategoryEdited } from "./CategoryEdited";
+export { CategoryEditedDomainEvent } from "./CategoryEditedDomainEvent";
 
-export { SegmentTooShort } from "./SegmentTooShort";
+export { SegmentTooShortDomainEvent } from "./SegmentTooShortDomainEvent";
 
-export { SessionExported } from "./SessionExported";
+export { SessionExportedDomainEvent } from "./SessionExportedDomainEvent";
 
-export { SessionStarted } from "./SessionStarted";
+export { SessionStartedDomainEvent } from "./SessionStartedDomainEvent";
 
-export { SessionStopped } from "./SessionStopped";
+export { SessionStoppedDomainEvent } from "./SessionStoppedDomainEvent";
 
-export { SessionPaused } from "./SessionPaused";
+export { SessionPausedDomainEvent } from "./SessionPausedDomainEvent";
 
-export { SessionResumed } from "./SessionResumed";
+export { SessionResumedDomainEvent } from "./SessionResumedDomainEvent";
 
 export { DomainEvent } from "./DomainEvent";

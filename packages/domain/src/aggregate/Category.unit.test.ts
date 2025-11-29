@@ -1,4 +1,7 @@
-import { CategoryCreated, CategoryEdited } from "../events";
+import {
+  CategoryCreatedDomainEvent,
+  CategoryEditedDomainEvent,
+} from "../events";
 import { CategoryName, Color, DateTime, Icon } from "../valueObjects";
 import { Category } from "./Category";
 
@@ -24,7 +27,7 @@ describe("Category", () => {
       });
       const events = category.pullDomainEvents();
       const targetEvent = events.find(
-        (event) => event instanceof CategoryCreated,
+        (event) => event instanceof CategoryCreatedDomainEvent,
       );
 
       expect(targetEvent).toBeDefined();
@@ -104,7 +107,7 @@ describe("Category", () => {
 
       const events = category.pullDomainEvents();
       const targetEvent = events.find(
-        (event) => event instanceof CategoryEdited,
+        (event) => event instanceof CategoryEditedDomainEvent,
       );
 
       expect(targetEvent).toBeDefined();
@@ -132,7 +135,7 @@ describe("Category", () => {
 
       const events = category.pullDomainEvents();
       const targetEvent = events.find(
-        (event) => event instanceof CategoryEdited,
+        (event) => event instanceof CategoryEditedDomainEvent,
       );
 
       expect(targetEvent).toBeDefined();
@@ -160,7 +163,7 @@ describe("Category", () => {
 
       const events = category.pullDomainEvents();
       const targetEvent = events.find(
-        (event) => event instanceof CategoryEdited,
+        (event) => event instanceof CategoryEditedDomainEvent,
       );
 
       expect(targetEvent).toBeDefined();

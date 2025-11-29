@@ -1,8 +1,8 @@
 import { DateTime, type ULID } from "../valueObjects";
 import { DomainEvent } from "./DomainEvent";
 
-export class CategoryCreated extends DomainEvent {
-  readonly type = "CategoryCreated";
+export class CategoryCreatedDomainEvent extends DomainEvent {
+  readonly type = "CategoryCreatedDomainEvent";
 
   constructor(
     public readonly categoryId: ULID,

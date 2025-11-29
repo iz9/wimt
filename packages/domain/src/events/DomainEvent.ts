@@ -17,8 +17,8 @@ import { DateTime } from "../valueObjects";
  *
  * @example
  * ```typescript
- * export class CategoryCreated extends AbstractDomainEvent {
- *   readonly type = 'CategoryCreated';
+ * export class CategoryCreatedDomainEvent extends DomainEvent {
+ *   readonly type = 'CategoryCreatedDomainEvent';
  *
  *   constructor(
  *     public readonly categoryId: ULID,

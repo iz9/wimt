@@ -1,6 +1,9 @@
 import { isNil } from "es-toolkit";
 
-import { CategoryCreated, CategoryEdited } from "../events";
+import {
+  CategoryCreatedDomainEvent,
+  CategoryEditedDomainEvent,
+} from "../events";
 import { CategoryName, Color, DateTime, Icon, ULID } from "../valueObjects";
 import { AggregateRoot } from "./AggregateRoot";
 
@@ -26,23 +29,23 @@ export class Category extends AggregateRoot {
     this.icon = props.icon ?? null;
 
     if (isNil(props.id)) {
-      this.addEvent(new CategoryCreated(this.id, this.createdAt));
+      this.addEvent(new CategoryCreatedDomainEvent(this.id, this.createdAt));
     }
   }
 
   setColor(color: Color): void {
     this.color = color;
-    this.addEvent(new CategoryEdited(this.id, this.createdAt));
+    this.addEvent(new CategoryEditedDomainEvent(this.id, this.createdAt));
   }
 
   setIcon(icon: Icon): void {
     this.icon = icon;
-    this.addEvent(new CategoryEdited(this.id, this.createdAt));
+    this.addEvent(new CategoryEditedDomainEvent(this.id, this.createdAt));
   }
 
   setName(name: CategoryName): void {
     this.name = name;
-    this.addEvent(new CategoryEdited(this.id, this.createdAt));
+    this.addEvent(new CategoryEditedDomainEvent(this.id, this.createdAt));
   }
 
   toJSON() {

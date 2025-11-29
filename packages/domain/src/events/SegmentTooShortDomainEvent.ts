@@ -1,11 +1,11 @@
 import { DateTime, type ULID } from "../valueObjects";
 import { DomainEvent } from "./DomainEvent";
 
-export class CategoryEdited extends DomainEvent {
-  readonly type = "CategoryEdited";
+export class SegmentTooShortDomainEvent extends DomainEvent {
+  readonly type = "SegmentTooShortDomainEvent";
 
   constructor(
-    public readonly categoryId: ULID,
+    public readonly segmentId: ULID,
     occurredAt: DateTime,
   ) {
     super(occurredAt);

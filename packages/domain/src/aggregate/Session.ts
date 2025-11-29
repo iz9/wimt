@@ -9,11 +9,11 @@ import {
   ValidationDomainError,
 } from "../errors";
 import {
-  SessionPaused,
-  SegmentTooShort,
-  SessionResumed,
-  SessionStarted,
-  SessionStopped,
+  SessionPausedDomainEvent,
+  SegmentTooShortDomainEvent,
+  SessionResumedDomainEvent,
+  SessionStartedDomainEvent,
+  SessionStoppedDomainEvent,
 } from "../events";
 import { SegmentCollectionValidator } from "../services";
 import {
@@ -156,7 +156,9 @@ export class Session extends AggregateRoot {
 
     if (isNil(segment)) return;
 
-    this.addEvent(new SessionPaused(this.id, segment.id, pausedAt.clone()));
+    this.addEvent(
+      new SessionPausedDomainEvent(this.id, segment.id, pausedAt.clone()),
+    );
   }
 
   resume(resumedAt: DateTime) {
@@ -170,7 +172,11 @@ export class Session extends AggregateRoot {
     );
     this._activeSegment = this.createSegment(resumedAt);
     this.addEvent(
-      new SessionResumed(this.id, this._activeSegment.id, resumedAt.clone()),
+      new SessionResumedDomainEvent(
+        this.id,
+        this._activeSegment.id,
+        resumedAt.clone(),
+      ),
     );
   }
 
@@ -212,7 +218,9 @@ export class Session extends AggregateRoot {
       new DomainError("total duration must be defined by this time"),
     );
 
-    this.addEvent(new SessionStopped(this.id, totalDuration, eventOcurredAt));
+    this.addEvent(
+      new SessionStoppedDomainEvent(this.id, totalDuration, eventOcurredAt),
+    );
   }
 
   toJSON() {
@@ -231,7 +239,9 @@ export class Session extends AggregateRoot {
 
   private start() {
     this._activeSegment = this.createSegment(this.createdAt);
-    this.addEvent(new SessionStarted(this.id, this.createdAt.clone()));
+    this.addEvent(
+      new SessionStartedDomainEvent(this.id, this.createdAt.clone()),
+    );
   }
 
   private stopActiveSegment(stoppedAt: DateTime) {
@@ -244,7 +254,7 @@ export class Session extends AggregateRoot {
     const isValid = new ValidSegmentDurationSpec().isSatisfiedBy(segment);
 
     if (!isValid) {
-      this.addEvent(new SegmentTooShort(segment.id, stoppedAt));
+      this.addEvent(new SegmentTooShortDomainEvent(segment.id, stoppedAt));
 
       throw new TooShortSegmentError();
     }

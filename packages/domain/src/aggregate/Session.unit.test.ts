@@ -1,10 +1,10 @@
 import { SessionSegment } from "../entities";
 import {
-  SegmentTooShort,
-  SessionPaused,
-  SessionResumed,
-  SessionStopped,
-  SessionStarted,
+  SegmentTooShortDomainEvent,
+  SessionPausedDomainEvent,
+  SessionResumedDomainEvent,
+  SessionStartedDomainEvent,
+  SessionStoppedDomainEvent,
 } from "../events";
 import { DateTime, makeId, type ULID } from "../valueObjects";
 import { Session } from "./Session";
@@ -86,7 +86,9 @@ describe("Session", () => {
         createdAt,
       });
       const events = session.pullDomainEvents();
-      const targetEvent = events.find((e) => e instanceof SessionStarted);
+      const targetEvent = events.find(
+        (e) => e instanceof SessionStartedDomainEvent,
+      );
 
       expect(targetEvent).toBeDefined();
     });
@@ -141,7 +143,9 @@ describe("Session", () => {
       session.pause(DateTime.create(1000));
 
       const events = session.pullDomainEvents();
-      const targetEvent = events.find((e) => e instanceof SessionPaused);
+      const targetEvent = events.find(
+        (e) => e instanceof SessionPausedDomainEvent,
+      );
 
       expect(targetEvent).toBeDefined();
     });
@@ -157,7 +161,9 @@ describe("Session", () => {
 
       // Should emit SegmentTooShort event
       const events = session.pullDomainEvents();
-      const tooShortEvent = events.find((e) => e instanceof SegmentTooShort);
+      const tooShortEvent = events.find(
+        (e) => e instanceof SegmentTooShortDomainEvent,
+      );
 
       expect(tooShortEvent).toBeDefined();
     });
@@ -193,7 +199,9 @@ describe("Session", () => {
       session.resume(DateTime.create(2000));
 
       const events = session.pullDomainEvents();
-      const targetEvent = events.find((e) => e instanceof SessionResumed);
+      const targetEvent = events.find(
+        (e) => e instanceof SessionResumedDomainEvent,
+      );
 
       expect(targetEvent).toBeDefined();
     });
@@ -237,7 +245,9 @@ describe("Session", () => {
       session.stop(DateTime.create(2000));
 
       const events = session.pullDomainEvents();
-      const targetEvent = events.find((e) => e instanceof SessionStopped);
+      const targetEvent = events.find(
+        (e) => e instanceof SessionStoppedDomainEvent,
+      );
 
       expect(targetEvent).toBeDefined();
     });
@@ -256,8 +266,12 @@ describe("Session", () => {
 
       // Should emit both SegmentTooShort and SessionStopped
       const events = session.pullDomainEvents();
-      const tooShortEvent = events.find((e) => e instanceof SegmentTooShort);
-      const stoppedEvent = events.find((e) => e instanceof SessionStopped);
+      const tooShortEvent = events.find(
+        (e) => e instanceof SegmentTooShortDomainEvent,
+      );
+      const stoppedEvent = events.find(
+        (e) => e instanceof SessionStoppedDomainEvent,
+      );
 
       expect(tooShortEvent).toBeDefined();
       expect(stoppedEvent).toBeDefined();

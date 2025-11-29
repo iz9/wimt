@@ -1,8 +1,8 @@
 import { DateTime } from "../valueObjects";
 import { DomainEvent } from "./DomainEvent";
 
-export class SessionResumed extends DomainEvent {
-  readonly type = "SessionResumed";
+export class SessionResumedDomainEvent extends DomainEvent {
+  readonly type = "SessionResumedDomainEvent";
 
   constructor(
     public readonly sessionId: string,
